@@ -1,8 +1,10 @@
 node_modules
 .next
 .git
-.env
-.env.local
 .github
 .vscode
 scripts
+.env
+.env.example
+.env.local
+database.db
