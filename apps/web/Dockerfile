@@ -4,11 +4,11 @@ RUN apk add --no-cache tzdata
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY apps/web/package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY apps/web/ .
 
 RUN npm run build
 
