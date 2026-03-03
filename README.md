@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Crawler & Web Dashboard System
 
-## Getting Started
+Este projeto consiste em uma arquitetura robusta de coleta de dados utilizando **Go**, visualização com **Next.js** e armazenamento em **MariaDB**, totalmente integrada ao ecossistema **CasaOS** via Docker.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🏗️ Arquitetura do Projeto
+
+Baseado no fluxo de dados definido, o sistema opera em quatro camadas principais:
+
+1.  **Crawlers (Go):** Motores de alta performance que realizam o scraping e populam o banco de dados.
+2.  **Database (MariaDB):** Camada de persistência centralizada onde os dados são armazenados.
+3.  **CI/CD (GitHub & Docker Hub):** * **GitHub Actions (Cron):** Dispara rotinas de build e automação.
+    * **Docker Hub:** Armazena as imagens prontas da aplicação Next.js e dos Crawlers.
+4.  **Deployment (CasaOS):** Servidor doméstico que consome as imagens do Docker Hub para rodar o app final e o banco de dados.
+
+---
+
+## 📂 Estrutura de Diretórios
+
+```text
+├── .github/workflows/    # Configurações de Cron e CI/CD
+├── apps/
+│   └── web/              # Interface Next.js (Frontend)
+├── crawlers/
+│   ├── cmd/              # Entrypoints dos crawlers em Go
+│   └── internal/         # Lógica de scraping e conexão com DB
+├── docker-compose.yml    # Orquestração local/CasaOS
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Fluxo de Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. GitHub para Docker Hub
+Sempre que um novo código é enviado ou um agendamento (Cron) é disparado:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O GitHub Actions compila o código Go.
 
-## Learn More
+Gera uma nova imagem Docker para o App Next.js.
 
-To learn more about Next.js, take a look at the following resources:
+Faz o push das imagens para o seu repositório no Docker Hub.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Docker Hub para CasaOS
+No seu painel do CasaOS:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Utilize a App Store ou "Custom Install".
 
-## Deploy on Vercel
+Aponte para a imagem gerada no Docker Hub.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O CasaOS garantirá que o container do MariaDB e o App estejam na mesma rede para comunicação interna.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚙️ Configuração de Ambiente
+Crie um arquivo .env na raiz ou configure as variáveis diretamente no CasaOS:
+
+```
+# Database
+DB_HOST=mariadb
+DB_USER=admin
+DB_PASSWORD=sua_senha
+DB_NAME=crawler_db
+DB_PORT=3306
+```
+
+## Connection String (Go/Next)
+`DATABASE_URL=mysql://admin:sua_senha@mariadb:3306/crawler_db`
+### 🛠️ Como rodar localmente
+Subir infraestrutura (Docker):
+
+```Bash
+docker-compose up -d
+```
+
+Executar Crawlers (Desenvolvimento):
+
+```Bash
+cd crawlers
+go run main.go
+```
+Executar Web App:
+
+```Bash
+cd apps/web
+npm run dev
+```
