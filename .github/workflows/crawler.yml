@@ -1,7 +1,7 @@
 name: Run Go Crawler
 on:
-  schedule:
-    - cron: '0 0 * * *' # Todo dia à meia-noite
+  # schedule:
+  #   - cron: '0 0 * * *' # Todo dia à meia-noite
   workflow_dispatch:
 
 jobs:
