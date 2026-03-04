@@ -6,36 +6,22 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"sort"
-	"strconv"
 	"time"
 	"github.com/joho/godotenv"
 	"log"
-	"database/sql"
 
+	types "google-flights-crawler/types"
+	utils "google-flights-crawler/utils"
 	entities "google-flights-crawler/entities"
+	lib "google-flights-crawler/lib"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 const serpAPIBase = "https://serpapi.com/search"
 
 // ─── Request / Response types ────────────────────────────────────────────────
-
-type SearchParams struct {
-	APIKey       string
-	DepartureID  string // IATA code, e.g. "GRU"
-	ArrivalID    string // IATA code, e.g. "JFK"
-	OutboundDate string // YYYY-MM-DD
-	ReturnDate   string // YYYY-MM-DD (empty = one-way)
-	Adults       int
-	TravelClass  int // 1=Economy 2=Premium 3=Business 4=First
-	Stops        int // 0=Any 1=Nonstop 2=1stop 3=2stops
-	Currency     string // e.g. "BRL", "USD"
-	Language     string // e.g. "pt", "en"
-	Country      string // e.g. "br", "us"
-}
 
 // ─── SerpApi raw response ─────────────────────────────────────────────────────
 
@@ -70,31 +56,8 @@ type serpResponse struct {
 
 // ─── Crawler ─────────────────────────────────────────────────────────────────
 
-func buildQuery(p SearchParams) url.Values {
-	q := url.Values{}
-	q.Set("engine", "google_flights")
-	q.Set("api_key", p.APIKey)
-	q.Set("departure_id", p.DepartureID)
-	q.Set("arrival_id", p.ArrivalID)
-	q.Set("outbound_date", p.OutboundDate)
-	q.Set("adults", strconv.Itoa(p.Adults))
-	q.Set("travel_class", strconv.Itoa(p.TravelClass))
-	q.Set("stops", strconv.Itoa(p.Stops))
-	q.Set("currency", p.Currency)
-	q.Set("hl", p.Language)
-	q.Set("gl", p.Country)
-
-	if p.ReturnDate != "" {
-		q.Set("return_date", p.ReturnDate)
-		q.Set("type", "1") // round-trip
-	} else {
-		q.Set("type", "2") // one-way
-	}
-	return q
-}
-
-func fetchFlights(p SearchParams) (*entities.SearchResult, error) {
-	reqURL := fmt.Sprintf("%s?%s", serpAPIBase, buildQuery(p).Encode())
+func fetchFlights(p types.SearchParams) (*entities.SearchResult, error) {
+	reqURL := fmt.Sprintf("%s?%s", serpAPIBase, utils.BuildQuery(p).Encode())
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Get(reqURL)
@@ -208,9 +171,9 @@ func printResults(r *entities.SearchResult) {
 				stops = fmt.Sprintf("%d stops", f.Stops)
 			}
 			fmt.Printf("  %-22s %-8s %-8s %-10s %-6s %.0f %s\n",
-				truncate(f.Airline, 22),
-				timeOnly(f.Departure),
-				timeOnly(f.Arrival),
+				utils.Truncate(f.Airline, 22),
+				utils.TimeOnly(f.Departure),
+				utils.TimeOnly(f.Arrival),
 				dur, stops,
 				f.Price, f.Currency,
 			)
@@ -220,29 +183,6 @@ func printResults(r *entities.SearchResult) {
 
 	printSection("Best Flights", r.BestFlights)
 	printSection("Other Flights", r.OtherFlights)
-}
-
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	return s[:n-1] + "…"
-}
-
-func timeOnly(dt string) string {
-	// dt format: "2006-01-02 15:04"
-	if len(dt) >= 16 {
-		return dt[11:16]
-	}
-	return dt
-}
-
-type DBConfig struct {
-    Username string
-    Password string
-    Host     string
-    Port     string
-    Database string
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -271,7 +211,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	params := SearchParams{
+	params := types.SearchParams{
 		APIKey:       *apiKey,
 		DepartureID:  *from,
 		ArrivalID:    *to,
@@ -293,7 +233,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	dbConfig := DBConfig{
+	dbConfig := types.DBConfig{
 		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Host: os.Getenv("DB_HOST"),
@@ -301,7 +241,7 @@ func main() {
 		Database: os.Getenv("DB_NAME"),
 	}
 
-	db := dbConnection(dbConfig)
+	db := lib.DbConnection(dbConfig)
 	defer db.Close()
 
 	printResults(result)
@@ -314,21 +254,4 @@ func main() {
 			fmt.Printf("💾 Results saved to %s\n", *output)
 		}
 	}
-}
-
-func dbConnection(cfg DBConfig) *sql.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
-
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatalf("Erro ao configurar o banco: %v", err)
-	}
-
-	if err := db.Ping(); err != nil {
-		log.Fatalf("Erro ao conectar no MariaDB: %v", err)
-	}
-
-	log.Println("✅ Conectado ao MariaDB com sucesso!")
-
-	return db
 }
