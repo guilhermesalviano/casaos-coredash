@@ -4,11 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-
-	types "google-flights-crawler/types"
 )
 
-func DbConnection(cfg types.DBConfig) *sql.DB {
+type DBConfig struct {
+	Username string
+	Password string
+	Host     string
+	Port     string
+	Database string
+}
+
+func DbConnection(cfg DBConfig) *sql.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
 
 	db, err := sql.Open("mysql", dsn)

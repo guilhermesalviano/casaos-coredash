@@ -4,137 +4,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"sort"
 	"time"
 	"github.com/joho/godotenv"
 	"log"
 
-	types "google-flights-crawler/types"
 	utils "google-flights-crawler/utils"
 	entities "google-flights-crawler/entities"
 	lib "google-flights-crawler/lib"
 	_ "github.com/go-sql-driver/mysql"
 )
-
-const serpAPIBase = "https://serpapi.com/search"
-
-// ─── Request / Response types ────────────────────────────────────────────────
-
-// ─── SerpApi raw response ─────────────────────────────────────────────────────
-
-type serpLayover struct {
-	Name     string `json:"name"`
-	ID       string `json:"id"`
-	Duration int    `json:"duration"`
-}
-
-type serpFlight struct {
-	Flights []struct {
-		DepartureAirport struct{ Time string `json:"time"` } `json:"departure_airport"`
-		ArrivalAirport   struct{ Time string `json:"time"` } `json:"arrival_airport"`
-		Duration         int    `json:"duration"`
-		Airline          string `json:"airline"`
-		FlightNumber     string `json:"flight_number"`
-	} `json:"flights"`
-	Layovers        []serpLayover `json:"layovers"`
-	TotalDuration   int `json:"total_duration"`
-	CarbonEmissions struct {
-		ThisFlightKg int `json:"this_flight"`
-	} `json:"carbon_emissions"`
-	Price   int    `json:"price"`
-	Airline string `json:"airline,omitempty"`
-}
-
-type serpResponse struct {
-	BestFlights  []serpFlight `json:"best_flights"`
-	OtherFlights []serpFlight `json:"other_flights"`
-	Error        string       `json:"error,omitempty"`
-}
-
-// ─── Crawler ─────────────────────────────────────────────────────────────────
-
-func fetchFlights(p types.SearchParams) (*entities.SearchResult, error) {
-	reqURL := fmt.Sprintf("%s?%s", serpAPIBase, utils.BuildQuery(p).Encode())
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Get(reqURL)
-	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-
-	var raw serpResponse
-	if err := json.Unmarshal(body, &raw); err != nil {
-		return nil, fmt.Errorf("parsing JSON: %w", err)
-	}
-	if raw.Error != "" {
-		return nil, fmt.Errorf("API error: %s", raw.Error)
-	}
-
-	result := &entities.SearchResult{
-		SearchedAt:  time.Now().UTC(),
-		Origin:      p.DepartureID,
-		Destination: p.ArrivalID,
-		Date:        p.OutboundDate,
-		ReturnDate:  p.ReturnDate,
-		Currency:    p.Currency,
-	}
-
-	parse := func(raw []serpFlight) []entities.Flight {
-		var out []entities.Flight
-		for _, sf := range raw {
-			airline := sf.Airline
-			flightNum := ""
-			depTime := ""
-			arrTime := ""
-			if len(sf.Flights) > 0 {
-				if airline == "" {
-					airline = sf.Flights[0].Airline
-				}
-				flightNum = sf.Flights[0].FlightNumber
-				depTime = sf.Flights[0].DepartureAirport.Time
-				arrTime = sf.Flights[len(sf.Flights)-1].ArrivalAirport.Time
-			}
-			out = append(out, entities.Flight{
-				Airline:      airline,
-				FlightNumber: flightNum,
-				Departure:    depTime,
-				Arrival:      arrTime,
-				Duration:     sf.TotalDuration,
-				Stops:        len(sf.Layovers),
-				Price:        float64(sf.Price),
-				Currency:     p.Currency,
-				CarbonEmitKg: sf.CarbonEmissions.ThisFlightKg,
-			})
-		}
-		return out
-	}
-
-	result.BestFlights = parse(raw.BestFlights)
-	result.OtherFlights = parse(raw.OtherFlights)
-
-	// Find overall best (lowest) price
-	all := append(result.BestFlights, result.OtherFlights...)
-	if len(all) > 0 {
-		best := all[0].Price
-		for _, f := range all[1:] {
-			if f.Price > 0 && f.Price < best {
-				best = f.Price
-			}
-		}
-		result.BestPrice = best
-	}
-
-	return result, nil
-}
 
 // ─── Display ─────────────────────────────────────────────────────────────────
 
@@ -211,7 +91,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	params := types.SearchParams{
+	params := lib.SearchParams{
 		APIKey:       *apiKey,
 		DepartureID:  *from,
 		ArrivalID:    *to,
@@ -227,13 +107,13 @@ func main() {
 
 	fmt.Printf("🔍 Searching flights %s → %s on %s...\n", params.DepartureID, params.ArrivalID, params.OutboundDate)
 
-	result, err := fetchFlights(params)
+	result, err := lib.FetchFlights(params)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌  Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	dbConfig := types.DBConfig{
+	dbConfig := lib.DBConfig{
 		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Host: os.Getenv("DB_HOST"),
