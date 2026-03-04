@@ -13,9 +13,9 @@ import (
 	"time"
 	"github.com/joho/godotenv"
 	"log"
-)
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+	entities "google-flights-crawler/entities"
+)
 
 const serpAPIBase = "https://serpapi.com/search"
 
@@ -33,30 +33,6 @@ type SearchParams struct {
 	Currency     string // e.g. "BRL", "USD"
 	Language     string // e.g. "pt", "en"
 	Country      string // e.g. "br", "us"
-}
-
-type Flight struct {
-	Airline       string  `json:"airline"`
-	FlightNumber  string  `json:"flight_number"`
-	Departure     string  `json:"departure_time"`
-	Arrival       string  `json:"arrival_time"`
-	Duration      int     `json:"duration_minutes"`
-	Stops         int     `json:"stops"`
-	Price         float64 `json:"price"`
-	Currency      string  `json:"currency"`
-	CarbonEmitKg  int     `json:"carbon_emissions_kg,omitempty"`
-}
-
-type SearchResult struct {
-	SearchedAt  time.Time `json:"searched_at"`
-	Origin      string    `json:"origin"`
-	Destination string    `json:"destination"`
-	Date        string    `json:"outbound_date"`
-	ReturnDate  string    `json:"return_date,omitempty"`
-	BestFlights []Flight  `json:"best_flights"`
-	OtherFlights []Flight `json:"other_flights"`
-	BestPrice   float64   `json:"best_price"`
-	Currency    string    `json:"currency"`
 }
 
 // ─── SerpApi raw response ─────────────────────────────────────────────────────
@@ -115,7 +91,7 @@ func buildQuery(p SearchParams) url.Values {
 	return q
 }
 
-func fetchFlights(p SearchParams) (*SearchResult, error) {
+func fetchFlights(p SearchParams) (*entities.SearchResult, error) {
 	reqURL := fmt.Sprintf("%s?%s", serpAPIBase, buildQuery(p).Encode())
 
 	client := &http.Client{Timeout: 30 * time.Second}
@@ -138,7 +114,7 @@ func fetchFlights(p SearchParams) (*SearchResult, error) {
 		return nil, fmt.Errorf("API error: %s", raw.Error)
 	}
 
-	result := &SearchResult{
+	result := &entities.SearchResult{
 		SearchedAt:  time.Now().UTC(),
 		Origin:      p.DepartureID,
 		Destination: p.ArrivalID,
@@ -147,8 +123,8 @@ func fetchFlights(p SearchParams) (*SearchResult, error) {
 		Currency:    p.Currency,
 	}
 
-	parse := func(raw []serpFlight) []Flight {
-		var out []Flight
+	parse := func(raw []serpFlight) []entities.Flight {
+		var out []entities.Flight
 		for _, sf := range raw {
 			airline := sf.Airline
 			flightNum := ""
@@ -162,7 +138,7 @@ func fetchFlights(p SearchParams) (*SearchResult, error) {
 				depTime = sf.Flights[0].DepartureAirport.Time
 				arrTime = sf.Flights[len(sf.Flights)-1].ArrivalAirport.Time
 			}
-			out = append(out, Flight{
+			out = append(out, entities.Flight{
 				Airline:      airline,
 				FlightNumber: flightNum,
 				Departure:    depTime,
@@ -197,7 +173,7 @@ func fetchFlights(p SearchParams) (*SearchResult, error) {
 
 // ─── Display ─────────────────────────────────────────────────────────────────
 
-func printResults(r *SearchResult) {
+func printResults(r *entities.SearchResult) {
 	fmt.Printf("\n╔══════════════════════════════════════════════════════╗\n")
 	fmt.Printf("║         Google Flights — Best Price Crawler          ║\n")
 	fmt.Printf("╚══════════════════════════════════════════════════════╝\n")
@@ -209,7 +185,7 @@ func printResults(r *SearchResult) {
 	fmt.Printf("  Searched  : %s\n", r.SearchedAt.Format("2006-01-02 15:04:05 UTC"))
 	fmt.Printf("  ★ Best price: %.0f %s\n\n", r.BestPrice, r.Currency)
 
-	printSection := func(label string, flights []Flight) {
+	printSection := func(label string, flights []entities.Flight) {
 		if len(flights) == 0 {
 			return
 		}
