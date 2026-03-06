@@ -5,8 +5,14 @@ import { Weather } from "@/entities/Weather";
 import Card from "../card";
 import { useStatus } from "@/contexts/statusContext";
 
+const RAIN_CODES = new Set([51,53,55,56,57,61,63,65,66,67,80,81,82,85,86,95,96,99]);
+
+function isRaining(code: number) {
+  return RAIN_CODES.has(code);
+}
+
 export default function WeatherCard() {
-  const [weather, setWeather] = useState<Weather>();
+  const [weather, setWeather] = useState<any>();
   const { reportStatus } = useStatus();
 
   useEffect(() => {
@@ -26,8 +32,11 @@ export default function WeatherCard() {
   if (!weather) {
     return <Card className="weather-card">Carregando clima...</Card>;
   }
+
+  const raining = isRaining(weather.code);
+
   return (
-    <Card className="weather-card">
+    <Card className={`${raining ? "weather-card--raining" : "weather-card"}`}>
       <div className="weather-main">
         <div>
           <div className="weather-city">{weather.city}</div>
@@ -39,7 +48,7 @@ export default function WeatherCard() {
       </div>
       <div className="weather-hours">
         {weather.forecast?.map((h: any) => (
-          <div key={h.time} className="weather-hour">
+          <div key={h.time} className={`weather-hour ${isRaining(h.code) ? "weather-hour--raining" : ""}`}>
             <span className="weather-hour-time">{h.time}</span>
             <span>{h.icon}</span>
             <span className="weather-hour-temp">{h.temp}°</span>
