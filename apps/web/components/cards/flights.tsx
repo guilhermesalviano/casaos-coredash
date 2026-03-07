@@ -21,22 +21,22 @@ export default function FlightsCard() {
           <div key={i} className="flight-row">
             <div>
               <div className="flight-route">{f.route}</div>
-              <div className="flight-meta">{f.date} · {f.airline}</div>
+              <div className="flight-meta">{f.airline} · {f.date}</div>
             </div>
             <div className="flight-price flex flex-col justify-center items-center">
               <div className="flight-title">
-                lowest value
-              </div>
-              <div className="flight-value">
-                {f.price}
-              </div>
-            </div>
-            <div className="flight-price flex flex-col justify-center items-center">
-              <div className="flight-title">
-                actual value
+                price meta
               </div>
               <div className="flight-value flex gap-2">
-                {f.price}
+                -
+              </div>
+            </div>
+            <div className="flight-price flex flex-col justify-center items-center">
+              <div className="flight-title">
+                price
+              </div>
+              <div className="flight-value flex gap-2">
+                R$ {f.price}
                 <span style={{ opacity: 0.5 }}>{f.trend}</span>
               </div>
             </div>
