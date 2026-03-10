@@ -34,8 +34,6 @@ export async function GET(req: NextRequest) {
       .andWhere("w.price <> ''")
       .orderBy(cleanPriceSql("w"), "ASC")
       .getRawMany();
-
-    console.log(minPricesPerBook);
     
     const minPricesPerBookOrdered = minPricesPerBook.sort((a, b) => {
       const parsePrice = (val: string) => {

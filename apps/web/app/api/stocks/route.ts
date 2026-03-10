@@ -5,8 +5,13 @@ export async function GET(req: NextRequest) {
   try {
     const stocks = await fetchBrapiAPI();
 
+    console.log(stocks)
+
     if (!stocks || !stocks.results) {
-      return NextResponse.json({ error: "Failed to retrieve stocks data" }, { status: 500 });
+      return NextResponse.json(
+        { message: "Nenhuma ação encontrada no momento" }, 
+        { status: 404 }
+      );
     }
 
     const stocksMap = stocks.results.map((stock) => {

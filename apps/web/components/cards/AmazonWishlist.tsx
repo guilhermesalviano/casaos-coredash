@@ -19,8 +19,8 @@ export default function WishlistCard() {
       <SectionTitle>📖 Promoções Wishlist de Hoje</SectionTitle>
       <div className="products-list">
         {products?.map((p: any, i: any) => (
-          <Link href={p.link} target="_blank">
-            <div key={i} className="product-row">
+          <Link key={i} href={p.link} target="_blank">
+            <div className="product-row">
               <div>
                 <div className="product-name">{p.name}</div>
                 <div className="product-store">{p.store}</div>
