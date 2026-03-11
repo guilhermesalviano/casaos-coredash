@@ -5,9 +5,13 @@ import { format } from "date-fns";
 
 export async function GET(req: NextRequest) {
   try {
-    const today = new Date();
     const db = await getDatabaseConnection();
     const flightCrawledRepository = db.getRepository(FlightCrawled);
+    const getMinDate = await flightCrawledRepository
+      .createQueryBuilder("f")
+      .select("max(f.searchDate)", "date")
+      .getRawOne();
+
     const flights = await flightCrawledRepository
       .createQueryBuilder("flight")
       .select("flight.origin", "origin")
@@ -26,7 +30,7 @@ export async function GET(req: NextRequest) {
         return `CAST(flight.price AS INT) < (${subQuery})`;
       })
       .andWhere("flight.price <> ''")
-      .andWhere("flight.searchDate LIKE :date", { date: `${format(today, "yyyy-MM-dd")}%` })
+      .andWhere("flight.searchDate LIKE :date", { date: `${format(getMinDate.date, "yyyy-MM-dd")}%` })
       .getRawMany();
 
     const flightsResult = flights.map((flight) => ({
