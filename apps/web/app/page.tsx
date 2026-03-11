@@ -7,6 +7,7 @@ import NewsCard from "@/components/cards/news";
 import FlightsCard from "@/components/cards/flights";
 import TodoCard from "@/components/cards/todo";
 import WishlistCard from "@/components/cards/AmazonWishlist";
+import ThemeToggle from "@/components/themeToggle";
 
 export default function Dashboard() {
   return (
@@ -16,6 +17,7 @@ export default function Dashboard() {
         <div className="header-clock"><Clock /></div>
         <div className="header-status">
           <SystemsStatus />
+          <ThemeToggle />
         </div>
       </div>
 
