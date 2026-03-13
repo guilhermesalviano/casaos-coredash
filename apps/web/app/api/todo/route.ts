@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabaseConnection } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
-import { In, Like, MoreThanOrEqual } from "typeorm";
+import { In, Like } from "typeorm";
 import { Todo } from "@/entities/Todo";
 import { TodoRecurrence } from "@/entities/TodoRecurrence";
 import { TodoCheck } from "@/entities/TodoCheck";
@@ -18,30 +18,34 @@ export async function GET(req: NextRequest) {
 
     const todos = await todoRepository.find({
       where: [
-        { createdAt: Like(`${format(today, "yyyy-MM-dd")}%`) as any }, 
-
-        { 
-          recurrence: { 
-            repeat: 1,  // To do: calculate the repeat using the createdAt from Todo repository
+        { createdAt: Like(`${format(today, "yyyy-MM-dd")}%`) as any },
+        {
+          recurrence: {
+            repeat: 1,
             weeklyDays: Like(`%${today.getDay()}%`) as any,
-            weeklyEnd: MoreThanOrEqual(today.getTime()),
-          } 
-        }
+          },
+        },
       ],
-      relations: ["recurrence"]
+      relations: ["recurrence"],
+    });
+
+    const todosFiltered = todos.filter((todo) => {
+      const end = todo.recurrence?.weeklyEnd;
+      if (end === null || end === undefined) return true;
+      return end >= today.getTime();
     });
 
     const checksResult = await todoCheckRepository.find({
       where: [
         {
-          todo: In(todos.map(todo => todo.id)),
+          todo: In(todosFiltered.map(todo => todo.id)),
           timestamp: Like(`${format(today, "yyyy-MM-dd")}%`)
         }
       ],
       relations: ["todo"]
     });
 
-    const todosMapped = todos.map((todo) => {
+    const todosMapped = todosFiltered.map((todo) => {
       const check = checksResult.find(check => check.todo?.id === todo.id);
 
       return {
