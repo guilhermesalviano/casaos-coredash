@@ -33,7 +33,7 @@ export async function fetchMediastackAPI(): Promise<NewsResponse> {
   });
 
   if (!response.ok) {
-    throw new Error("Falha ao buscar dados da API externa");
+    throw new Error("Falha ao buscar dados da API externa 'Mediastack'");
   }
 
   const responseJson = await response.json();

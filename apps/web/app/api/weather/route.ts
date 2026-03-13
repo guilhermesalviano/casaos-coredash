@@ -1,7 +1,3 @@
-import { Weather } from "@/entities/Weather";
-import { WeatherHour } from "@/entities/WeatherHour";
-import { getDatabaseConnection } from "@/lib/db";
-import { fetchNominatimAPI } from "@/services/nominatim-api";
 import { fetchOpenMeteoAPI } from "@/services/open-meteo-api";
 import { NextRequest, NextResponse } from "next/server";
 import { LOCATION } from "@/constants";
@@ -22,12 +18,12 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const location = await fetchNominatimAPI({ latitude, longitude });
+    // const location = await fetchNominatimAPI({ latitude, longitude });
 
     const weatherData =  {
       date: weather.current.time.split("T")[0],
-      city: location.address.city,
-      state: location.address.state,
+      city: "Anápolis",
+      state: "Goiás",
       temp: Math.round(weather.current.temperature_2m),
       feels: Math.round(weather.current.apparent_temperature),
       condition: getWeatherCondition(weather.current.weather_code),

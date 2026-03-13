@@ -42,7 +42,7 @@ export async function fetchNominatimAPI({latitude, longitude}: NominatimProps): 
   });
 
   if (!response.ok) {
-    throw new Error("Falha ao buscar dados da API externa");
+    throw new Error("Falha ao buscar dados da API externa 'Nominatim'");
   }
 
   const responseJson = await response.json();

@@ -69,7 +69,7 @@ export async function fetchGoogleCalendarAPI(): Promise<CalendarEventsResponse> 
   });
 
   if (response.status !== 200){
-    throw new Error("Falha ao buscar dados da API externa");
+    throw new Error("Falha ao buscar dados da API externa 'Google Calendar'");
   }
 
   return response.data.items as CalendarEventsResponse;

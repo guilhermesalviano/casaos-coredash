@@ -64,7 +64,7 @@ export async function fetchOpenMeteoAPI({latitude, longitude}: OpenMeteoProps): 
   });
 
   if (!response.ok) {
-    throw new Error("Falha ao buscar dados da API externa");
+    throw new Error("Falha ao buscar dados da API externa 'Open Meteo'");
   }
 
   const responseJson = await response.json();

@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SectionTitle from "../sectionTitle";
 import Card from "../card";
-import { useRouter } from "next/navigation";
 import { useStatus } from "@/contexts/statusContext";
+import { memo } from "react";
 
-
-export default function NewsCard() {
+const NewsCard = memo(function NewsCard() {
   const [news, setNews] = useState<any>(null);
   const { reportStatus } = useStatus();
+  const lastFetchRef = useRef<number>(0);
   
   useEffect(() => {
+    const now = Date.now();
+    if (now - lastFetchRef.current < 1000) return;
+    lastFetchRef.current = now;
+
     const fetchNews = () => {
       fetch("/api/news")
         .then((res) => {
@@ -48,4 +52,6 @@ export default function NewsCard() {
       </div>
     </Card>
   );
-}
+})
+
+export default NewsCard;

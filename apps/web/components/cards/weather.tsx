@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Weather } from "@/entities/Weather";
+import { useEffect, useRef, useState } from "react";
 import Card from "../card";
 import { useStatus } from "@/contexts/statusContext";
+import { memo } from "react";
 
 const RAIN_CODES = new Set([51,53,55,56,57,61,63,65,66,67,80,81,82,85,86,95,96,99]);
 
@@ -11,7 +11,7 @@ function isRaining(code: number) {
   return RAIN_CODES.has(code);
 }
 
-export default function WeatherCard() {
+const WeatherCard = memo(function WeatherCard() {
   const [weather, setWeather] = useState<any>();
   const { reportStatus } = useStatus();
 
@@ -69,5 +69,7 @@ export default function WeatherCard() {
         ))}
       </div>
     </Card>
-  );
-}
+  )
+});
+
+export default WeatherCard;
