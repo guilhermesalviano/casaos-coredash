@@ -1,15 +1,17 @@
 "use client";
 
 import { useStatus } from "@/contexts/statusContext";
+import { format } from "date-fns";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const HabitTracker = () => {
   const [streak, setStreak] = useState(0);
-  // const [lastDayOfWeek, setLastDayOfWeek] = useState<Date>();
   const [weekDaysMap, setWeekDaysMap] = useState<Object>();
   const [haveYouWakeUpEarlyToday, setHaveYouWakeUpEarlyToday] = useState(false);
   const { reportStatus } = useStatus();
+
+  const today = new Date();
 
   const track = async (answer: string) => {
     const habit = { habit: answer };
@@ -34,7 +36,11 @@ const HabitTracker = () => {
       })
       .then((data) => {
         const { streak, lastDayOfWeek } = data.data;
+
+        if (format(today, "yyyy-MM-dd") !== format(lastDayOfWeek, "yyyy-MM-dd")) return;
+
         setStreak(streak);
+        setHaveYouWakeUpEarlyToday(true);
 
         const DAYS_OF_WEEK = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
 
@@ -62,6 +68,10 @@ const HabitTracker = () => {
       });
   };
 
+  useEffect(() => {
+    fetchHabit();
+  }, []);
+  
   return (
     <div className="card flex justify-center flex-col items-center">
       {!haveYouWakeUpEarlyToday ? (
