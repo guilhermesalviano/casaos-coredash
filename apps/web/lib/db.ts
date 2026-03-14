@@ -9,6 +9,7 @@ import { WeatherHour } from "@/entities/WeatherHour";
 import { TodoCheck } from "@/entities/TodoCheck";
 import { FlightCrawled } from "@/entities/FlightCrawled";
 import { WishlistAmazon } from "@/entities/WishlistAmazon";
+import { HabitTracker } from "@/entities/HabitTracker";
 
 dotenv.config({});
 
@@ -36,7 +37,7 @@ const prodType: DataSourceOptions = {
 
 const devOrProdDataSource = {
   ...(isDevMode ? devType : prodType),
-  entities: [Todo, TodoRecurrence, WishlistAmazon, TodoCheck, FlightCrawled, User, Weather, WeatherHour],
+  entities: [Todo, TodoRecurrence, WishlistAmazon, TodoCheck, FlightCrawled, User, HabitTracker, Weather, WeatherHour],
   subscribers: [],
   migrations: [],
 };
