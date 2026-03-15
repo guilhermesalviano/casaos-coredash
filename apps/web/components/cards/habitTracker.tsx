@@ -54,8 +54,7 @@ const HabitTracker = () => {
         const DAYS_OF_WEEK = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
 
         if (lastDayOfWeek) {
-          // pegando timezone da .000Z
-          const lastDayOfWeekNumber = new Date(lastDayOfWeek).getDay();
+          const lastDayOfWeekNumber = new Date(lastDayOfWeek).getUTCDay();
 
           let weekDaysMapLocal = {};
           let streakCounter = streak;
