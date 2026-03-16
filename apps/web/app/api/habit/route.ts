@@ -8,12 +8,22 @@ export async function GET(req: NextRequest) {
     const db = await getDatabaseConnection();
     const repository = db.getRepository(HabitTracker);
 
-    const records = await repository
-      .createQueryBuilder("habit")
-      .select("DISTINCT DATE(habit.createdAt)", "date")
-      .where("habit.habit = :name", { name: "wakedup" })
-      .orderBy("date", "DESC")
-      .getRawMany();
+    const all = await repository.find({
+      select: { createdAt: true },
+      where: { habit: "wakedup" },
+      order: { createdAt: "DESC" },
+    });
+
+    const records = [
+      ...new Map(
+        all.map((r) => {
+          const date = format(r.createdAt, "yyyy-MM-dd");
+          return [date, { date }];
+        })
+      ).values(),
+    ];
+
+    // console.log(records)
 
     if (records.length === 0) {
       return NextResponse.json({ message: "Habit retrieve successfully", data: { streak: 0 } }, { status: 200 })
@@ -25,22 +35,19 @@ export async function GET(req: NextRequest) {
     today.setHours(0, 0, 0, 0);
 
     let expectedDate = new Date(today);
-    let lastDayOfWeek = expectedDate;
+    let lastDayOfWeek = new Date(today);
 
     for (let i = 0; i < records.length; i++) {
-      const recordDate = new Date(records[i].date); 
-
-      if (i === records.length-1) {
-        lastDayOfWeek = new Date(records[i].date);
-      }
-
+      const recordDate = new Date(records[i].date);
+      
       if (i === 0) {
         const diffDays = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 3600 * 24));
         if (diffDays > 1) {
           return NextResponse.json({ message: "Habit retrieve successfully", data: { streak: 0 } }, { status: 200 })
         };
-
-        expectedDate = recordDate;
+        
+        lastDayOfWeek = new Date(recordDate);
+        expectedDate = new Date(recordDate);
         streak++;
         continue;
       }
