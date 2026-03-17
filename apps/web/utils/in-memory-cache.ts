@@ -1,30 +1,28 @@
-interface CacheEntry<T> {
-  data: T;
-  expiresAt: number;
-}
+import { gunzipSync, gzipSync } from "zlib";
 
 /**
+ * interface CacheEntry<T> { data: T; expiresAt: number; }
  * Volatility: The cache is lost on every server restart
  * Single instance only: If you ever scale to multiple Node.js processes
  * @param ttlMs 
  * @returns T
  */
 export function createMemoryCache<T>(ttlMs: number) {
-  let cache: CacheEntry<T> | null = null;
+  let cache: { data: Buffer; expiresAt: number } | null = null;
 
   return {
-    get: (): T | null => {
-      if (!cache) return null;
-
-      if (Date.now() > cache.expiresAt) {
+    get(): T | null {
+      if (!cache || Date.now() > cache.expiresAt) {
         cache = null;
         return null;
       }
-
-      return cache.data;
+      return JSON.parse(gunzipSync(cache.data).toString());
     },
-    set: (data: T) => {
-      cache = { data, expiresAt: Date.now() + ttlMs };
+    set(data: T): void {
+      cache = {
+        data: gzipSync(Buffer.from(JSON.stringify(data))),
+        expiresAt: Date.now() + ttlMs,
+      };
     },
   };
 }
