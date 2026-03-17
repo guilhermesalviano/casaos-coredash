@@ -21,6 +21,7 @@
     "sqlite3": "^5.1.7",
     "typeorm": "^0.3.28",
     "uuid": "^13.0.0",
+    "web-push": "^3.6.7",
     "yahoo-finance2": "^3.13.2"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",

@@ -9,6 +9,7 @@ import Clock from "@/components/clock";
 import SystemsStatus from "@/components/systemsStatus";
 import ThemeToggle from "@/components/themeToggle";
 import FlightsCard from "@/components/cards/flights";
+import { PushButton } from "@/components/PushButton";
 
 export default function Dashboard() {
   const { anyLoading, reportStatus } = useStatus();
@@ -38,6 +39,7 @@ export default function Dashboard() {
           <div className="header-status gap-4">
             <SystemsStatus />
             <ThemeToggle />
+            <PushButton />
           </div>
         </div>
         <div className="gap-4 m-4!" style={{ columns: "25rem" }}>

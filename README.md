@@ -84,3 +84,22 @@ Executar Web App:
 cd apps/web
 npm run dev
 ```
+
+send a push
+
+```Bash
+curl -X POST http://localhost:3000/api/push/send \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subscription": {
+      "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+      "keys": {
+        "p256dh": "sua_chave_p256dh",
+        "auth": "sua_chave_auth"
+      }
+    },
+    "title": "Teste de Push",
+    "body": "Funcionou! 🎉",
+    "url": "/"
+  }'
+```
