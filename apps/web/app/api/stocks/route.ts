@@ -1,6 +1,9 @@
+import { SECONDS_TO_MINUTES } from "@/constants";
 import { STOCKS } from "@/constants/stocks";
 import { fetchBrapiAPI } from "@/services/brapi-api";
 import { fetchYahooPrice } from "@/services/yahoo-finance";
+import { StockInternalAPIResponse } from "@/types/stock-api";
+import { createMemoryCache } from "@/utils/in-memory-cache";
 import { NextRequest, NextResponse } from "next/server";
 
 interface StockResult {
@@ -11,7 +14,7 @@ interface StockResult {
   regularMarketChangePercent: number;
 }
 
-function mapStocks(results: StockResult[]) {
+function mapStocks(results: StockResult[]): StockInternalAPIResponse[] {
   return results.map((stock) => ({
     ticker: stock.symbol,
     price: stock.regularMarketPrice,
@@ -21,26 +24,39 @@ function mapStocks(results: StockResult[]) {
   }));
 }
 
+const stocksCache = createMemoryCache<StockInternalAPIResponse[]>(SECONDS_TO_MINUTES * 10);
+
 export async function GET(req: NextRequest) {
   try {
+    const cached = stocksCache.get();
+    if (cached) {
+      return NextResponse.json({ message: "Stocks data from cache successfully", data: cached });
+    }
+
     const symbols = Object.values(STOCKS).flat();
 
     const brapiData = await fetchBrapiAPI(symbols.join(","));
     if (brapiData?.results?.length) {
+      const data = mapStocks(brapiData.results);
+      stocksCache.set(data);
+
       return NextResponse.json({
         message: "Stocks data retrieved successfully",
         source: "brapi",
-        data: mapStocks(brapiData.results),
+        data,
       }, { status: 200 });
     }
 
     const yahooSymbols = symbols.map((s) => `${s}.SA`);
     const yahooData = await fetchYahooPrice(yahooSymbols);
     if (yahooData?.results?.length) {
+      const data = mapStocks(yahooData.results as StockResult[]);
+      stocksCache.set(data);
+
       return NextResponse.json({
         message: "Stocks data retrieved successfully",
         source: "yahoo",
-        data: mapStocks(yahooData.results as StockResult[]),
+        data,
       }, { status: 200 });
     }
 
