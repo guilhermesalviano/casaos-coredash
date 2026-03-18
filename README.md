@@ -1,5 +1,5 @@
 # CoreDash
-A dashboard to be used locally on a tablet, just like mine setup! :)
+A local dashboard running on an old laptop with Docker, using a tablet as the interface -just like my current setup!
 
 ## CasaOS
 I'm currently using CasaOS on my home server to manage and simplify Docker images.
