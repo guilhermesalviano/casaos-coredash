@@ -1,17 +1,17 @@
-import { WebPush } from '@/entities/WebPush';
+import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseConnection } from '@/lib/db';
-import { Subscription } from '@/types/push';
-import { NextResponse } from 'next/server';
 import webpush from 'web-push';
+import { WebPush } from '@/entities/WebPush';
+import { Subscription } from '@/types/push';
 
-webpush.setVapidDetails(
-  process.env.VAPID_MAILTO!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    webpush.setVapidDetails(
+      process.env.VAPID_MAILTO!,
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+      process.env.VAPID_PRIVATE_KEY!
+    );
+
     const subscription: Subscription = await req.json();
 
     const db = await getDatabaseConnection();
