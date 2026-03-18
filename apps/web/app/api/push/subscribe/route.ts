@@ -1,3 +1,7 @@
+import { WebPush } from '@/entities/WebPush';
+import { getDatabaseConnection } from '@/lib/db';
+import { Subscription } from '@/types/push';
+import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 
 webpush.setVapidDetails(
@@ -7,12 +11,21 @@ webpush.setVapidDetails(
 );
 
 export async function POST(req: Request) {
-  const subscription = await req.json();
+  try {
+    const subscription: Subscription = await req.json();
 
-  // Salve no banco de dados aqui (ex: Prisma, Drizzle)
-  // await db.pushSubscription.create({ data: subscription })
+    const db = await getDatabaseConnection();
+    const webPushRepository = db.getRepository(WebPush);
 
-  console.log('Nova subscription:', subscription);
+    await webPushRepository.save({
+      endpoint: subscription.endpoint,
+      keys: subscription.keys,
+      expirationTime: subscription.expirationTime,
+    });
 
-  return Response.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    console.error(error)
+    return NextResponse.json({ error: "Failed to save todos data" }, { status: 500 });
+  }
 }
