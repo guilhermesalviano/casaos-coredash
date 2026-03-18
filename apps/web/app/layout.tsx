@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "My Notion Version :)",
-  description: "This is the dashboard for My Server Definitive, a self-hosted server management tool.",
+  title: "CoreDash",
+  description: "A minimalist, self-hosted command center(Dashboard) designed for CasaOS",
 };
 
 export default function RootLayout({
