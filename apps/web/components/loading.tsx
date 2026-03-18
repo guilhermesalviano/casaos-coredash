@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useStatus } from "@/contexts/statusContext";
-import Logo from "@/components/Logo";
+import Logo from "@/components/logo";
 
 const LOADING_TEXTS = [
   "Loading system... beep boop!",

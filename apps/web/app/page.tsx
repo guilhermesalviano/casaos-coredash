@@ -4,7 +4,7 @@ import SystemsStatus from "@/components/systemsStatus";
 import ThemeToggle from "@/components/themeToggle";
 import ActiveCards from "@/components/activeCards";
 import PushButton from "@/components/pushButton";
-import Logo from "@/components/Logo";
+import Logo from "@/components/logo";
 
 export default function Page() {
   return (
