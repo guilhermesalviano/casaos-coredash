@@ -1,6 +1,6 @@
 import { SECONDS_TO_MINUTES } from "@/constants";
-import { fetchGoogleNewsAPI, NewsResult } from "@/services/google-news-api";
-import { fetchMediastackAPI, NewsResponse } from "@/services/mediastack-api";
+import { fetchGoogleNewsAPI } from "@/services/google-news-api";
+import { fetchMediastackAPI } from "@/services/mediastack-api";
 import { createMemoryCache } from "@/utils/in-memory-cache";
 import { parseRelativeDate } from "@/utils/parse-relative-date";
 import { differenceInHours } from "date-fns";
