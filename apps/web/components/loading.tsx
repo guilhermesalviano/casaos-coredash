@@ -36,7 +36,7 @@ export default function Loading() {
         <div className="w-14 h-14 rounded-full border-4 border-gray-200" />
         <div className="absolute w-14 h-14 rounded-full border-4 border-transparent border-t-cyan-500 animate-spin" />
       </div>
-      {(textIndex && 
+      {(textIndex !== null &&
         <p
           className="text-sm text-slate-400 animate-appear"
           style={{ opacity: fade ? 1 : 0 }}
