@@ -1,4 +1,4 @@
-import { SECONDS_TO_MINUTES } from "@/constants";
+import { ONE_MINUTE_IN_MS } from "@/constants";
 import { fetchGoogleNewsAPI } from "@/services/google-news-api";
 import { fetchMediastackAPI } from "@/services/mediastack-api";
 import { createMemoryCache } from "@/utils/in-memory-cache";
@@ -14,7 +14,7 @@ interface NewsReturn {
   url: string | undefined;
 }
 
-const newsCache = createMemoryCache<NewsReturn[]>(SECONDS_TO_MINUTES * 30);
+const newsCache = createMemoryCache<NewsReturn[]>(ONE_MINUTE_IN_MS * 30);
 
 export async function GET(req: NextRequest) {
   try {

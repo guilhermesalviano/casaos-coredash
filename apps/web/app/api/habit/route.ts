@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabaseConnection } from "@/lib/db";
 import { format } from "date-fns";
 import { HabitTracker } from "@/entities/HabitTracker";
-import { SECONDS_TO_MINUTES } from "@/constants";
+import { ONE_MINUTE_IN_MS } from "@/constants";
 import { StreakResponse } from "@/types/habit";
 import { createMemoryCache } from "@/utils/in-memory-cache";
 
-const habitCache = createMemoryCache<StreakResponse>(SECONDS_TO_MINUTES * 60 * 3); // 3 hours in seconds
+const habitCache = createMemoryCache<StreakResponse>(ONE_MINUTE_IN_MS * 60 * 3); // 3 hours in seconds
 
 export async function GET(req: NextRequest) {
   const cached = habitCache.get();

@@ -4,4 +4,4 @@ export const RETRY_CONFIG = {
   backoffMultiplier: 2,
 };
 
-export const SECONDS_TO_MINUTES = 60 * 1000;
+export const ONE_MINUTE_IN_MS = 60 * 1000;

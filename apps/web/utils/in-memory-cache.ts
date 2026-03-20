@@ -4,7 +4,7 @@ import { gunzipSync, gzipSync } from "zlib";
  * interface CacheEntry<T> { data: T; expiresAt: number; }
  * Volatility: The cache is lost on every server restart
  * Single instance only: If you ever scale to multiple Node.js processes
- * @param ttlMs 
+ * @param ttlMs time in milliseconds
  * @returns T
  */
 export function createMemoryCache<T>(ttlMs: number) {

@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchGoogleCalendarAPI } from "@/services/google-calendar-api";
 import { format, parseISO } from "date-fns";
 import { createMemoryCache } from "@/utils/in-memory-cache";
-import { SECONDS_TO_MINUTES } from "@/constants";
+import { ONE_MINUTE_IN_MS } from "@/constants";
 import { CalendarInternalAPIResponse } from "@/types/calendar";
 
-const calendarCache = createMemoryCache<CalendarInternalAPIResponse>(SECONDS_TO_MINUTES * 10);
+const calendarCache = createMemoryCache<CalendarInternalAPIResponse>(ONE_MINUTE_IN_MS * 10);
 
 export async function GET(req: NextRequest) {
   const cached = calendarCache.get();

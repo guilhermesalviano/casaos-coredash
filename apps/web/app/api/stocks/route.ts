@@ -1,4 +1,4 @@
-import { SECONDS_TO_MINUTES } from "@/constants";
+import { ONE_MINUTE_IN_MS } from "@/constants";
 import { STOCKS } from "@/constants/stocks";
 import { fetchBrapiAPI } from "@/services/brapi-api";
 import { fetchYahooPrice } from "@/services/yahoo-finance";
@@ -24,7 +24,7 @@ function mapStocks(results: StockResult[]): StockInternalAPIResponse[] {
   }));
 }
 
-const stocksCache = createMemoryCache<StockInternalAPIResponse[]>(SECONDS_TO_MINUTES * 10);
+const stocksCache = createMemoryCache<StockInternalAPIResponse[]>(ONE_MINUTE_IN_MS * 10);
 
 export async function GET(req: NextRequest) {
   try {
