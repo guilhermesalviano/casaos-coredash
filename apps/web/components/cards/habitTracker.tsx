@@ -4,6 +4,7 @@ import { useStatus } from "@/contexts/statusContext";
 import { format } from "date-fns";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import storage from "@/lib/storage";
 import Card from "../card";
 
 const HabitTracker = () => {
@@ -17,7 +18,7 @@ const HabitTracker = () => {
   const todayStr = format(today, "yyyy-MM-dd");
 
   const handleNo = () => {
-    localStorage.setItem("habitNoToday", todayStr);
+    storage.set("habitNoToday", todayStr);
     setNoToday(true);
     setQuestionToday(true);
   };
@@ -35,7 +36,7 @@ const HabitTracker = () => {
 
     fetchHabit();
     setQuestionToday(!!answer);
-    localStorage.setItem("habitToday", todayStr);
+    storage.set("habitToday", todayStr);
   }
 
   const fetchHabit = () => {
@@ -79,8 +80,8 @@ const HabitTracker = () => {
   };
 
   useEffect(() => {
-    const noTodayStored = localStorage.getItem("habitNoToday");
-    const todayStored = localStorage.getItem("habitToday");
+    const noTodayStored = storage.get("habitNoToday");
+    const todayStored = storage.get("habitToday");
     if (noTodayStored === todayStr) {
       setNoToday(true);
       setQuestionToday(true);
