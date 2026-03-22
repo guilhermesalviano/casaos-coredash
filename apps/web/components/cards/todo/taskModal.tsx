@@ -1,6 +1,16 @@
 import { NewTaskForm, Priority, priorityColor, priorityLabel } from "@/types/task";
 import { useState } from "react";
 
+const WEEK_DAYS = [
+  { label: "Dom", value: 0 },
+  { label: "Seg", value: 1 },
+  { label: "Ter", value: 2 },
+  { label: "Qua", value: 3 },
+  { label: "Qui", value: 4 },
+  { label: "Sex", value: 5 },
+  { label: "Sáb", value: 6 },
+];
+
 interface TaskModalProps {
   onClose: () => void;
   onAdd: (form: NewTaskForm) => void;
@@ -8,16 +18,6 @@ interface TaskModalProps {
 
 export default function TaskModal({ onClose, onAdd }: TaskModalProps) {
   const [form, setForm] = useState<NewTaskForm>({ title: "", priority: "medium", recurrence: {repeat: false, weeklyInterval: 1, weeklyDays: [0], weeklyEnd: null}});
-
-  const WEEK_DAYS = [
-    { label: "Dom", value: 0 },
-    { label: "Seg", value: 1 },
-    { label: "Ter", value: 2 },
-    { label: "Qua", value: 3 },
-    { label: "Qui", value: 4 },
-    { label: "Sex", value: 5 },
-    { label: "Sáb", value: 6 },
-  ];
 
   const handleSubmit = () => {
     if (!form.title.trim()) return;
