@@ -14,10 +14,8 @@ export default function TodoCard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [isBusy, setIsBusy] = useState(true);
   const { reportStatus } = useStatus();
-  // const [showJewel, setShowJewel] = useState(false);
 
   const isFirstRender = useRef(true);
-  // const jewelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch("/api/todo")
@@ -31,8 +29,6 @@ export default function TodoCard() {
         reportStatus("todo", "error");
       });
   }, []);
-
-  // useEffect(() => () => { if (jewelTimer.current) clearTimeout(jewelTimer.current); }, []);
 
   const add = async (form: NewTaskForm) => {
     const newTask = {
@@ -119,18 +115,6 @@ export default function TodoCard() {
         onClose={() => setModalOpen(false)} 
         onAdd={add} 
       />
-
-      {/* {showJewel && (
-        <div className="fixed left-4 top-4 z-70">
-          <Image
-            src="/lets-go.gif"
-            width={300}
-            height={300}
-            alt="jewel"
-            unoptimized
-          />
-        </div>
-      )} */}
 
       <Card>
         <div className="flex items-center justify-between mb-5!">
