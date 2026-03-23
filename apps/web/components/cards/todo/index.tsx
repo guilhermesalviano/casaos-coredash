@@ -17,7 +17,7 @@ export default function TodoCard() {
   // const [showJewel, setShowJewel] = useState(false);
 
   const isFirstRender = useRef(true);
-  const jewelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // const jewelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch("/api/todo")
@@ -32,7 +32,7 @@ export default function TodoCard() {
       });
   }, []);
 
-  useEffect(() => () => { if (jewelTimer.current) clearTimeout(jewelTimer.current); }, []);
+  // useEffect(() => () => { if (jewelTimer.current) clearTimeout(jewelTimer.current); }, []);
 
   const add = async (form: NewTaskForm) => {
     const newTask = {

@@ -8,7 +8,6 @@ import StocksCard from "@/components/cards/stocks";
 import NewsCard from "@/components/cards/news";
 import FlightsCard from "@/components/cards/flights";
 import TodoCard from "@/components/cards/todo";
-import WishlistCard from "@/components/cards/amazonWishlist";
 import HabitTracker from "@/components/cards/habitTracker";
 
 const DASHBOARD_CARDS = [
@@ -19,7 +18,6 @@ const DASHBOARD_CARDS = [
   HabitTracker,
   TodoCard,
   CalendarCard,
-  WishlistCard,
 ] as const;
 
 export default function ActiveCards() {
