@@ -4,6 +4,7 @@ import SystemsStatus from "@/components/systemsStatus";
 import ThemeToggle from "@/components/themeToggle";
 import ActiveCards from "@/components/activeCards";
 import Logo from "@/components/logo";
+import Settings from "@/components/settings";
 
 export default function Page() {
   return (
@@ -17,6 +18,7 @@ export default function Page() {
           <div className="header-clock"><Clock /></div>
           <div className="header-status gap-4">
             <SystemsStatus />
+            <Settings />
             <ThemeToggle />
           </div>
         </div>
