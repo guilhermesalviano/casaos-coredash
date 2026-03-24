@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NewTaskForm, TodoState } from "@/types/task";
 import handleFireConfetti from "@/components/confetti";
 import Card from "@/components/card";
@@ -8,6 +8,7 @@ import TaskModal from "./taskModal";
 import TodoItem from "./todoItem";
 import { useStatus } from "@/contexts/statusContext";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { useDayChange } from "@/hooks/useDayChange";
 
 export default function TodoCard() {
   const [todos, setTodos] = useState<TodoState[]>([]);
@@ -17,17 +18,27 @@ export default function TodoCard() {
 
   const isFirstRender = useRef(true);
 
+  const fetchTodos = useCallback(async () => {
+    try {
+      console.log("[log]: a new todos fetch.")
+      const res = await fetch("/api/todo");
+      const data = await res.json();
+      setTodos(data.data);
+      reportStatus("todo", "success");
+    } catch {
+      reportStatus("todo", "error");
+    } finally {
+      setIsBusy(false);
+    }
+  }, []);
+
+  useDayChange((newDay) => {
+    console.log(`Day changed to ${newDay}, fetching todos.`);
+    fetchTodos();
+  });
+
   useEffect(() => {
-    fetch("/api/todo")
-      .then((res) => {
-        setIsBusy(false);
-        reportStatus("todo", "success");
-        return res.json();
-      })
-      .then((data) => setTodos(data.data))
-      .catch(() => {
-        reportStatus("todo", "error");
-      });
+    fetchTodos();
   }, []);
 
   const add = async (form: NewTaskForm) => {

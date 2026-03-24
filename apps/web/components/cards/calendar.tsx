@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStatus } from "@/contexts/statusContext";
 import { differenceInDays, parse, startOfDay } from "date-fns";
 import Card from "../card";
+import { useDayChange } from "@/hooks/useDayChange";
 
 const EVENT_MAPPING: Record<string, { emoji: string; bg:string; color: string;}> = {
   birthday: { emoji: "🎂", bg: "bg-cyan-50", color: "text-cyan-700" },
@@ -17,18 +18,25 @@ export default function CalendarCard() {
   const [calendar, setCalendar] = useState<any>(null);
   const { reportStatus } = useStatus();
 
+  const fetchCalendar = useCallback(async () => {
+    try {
+      console.log("[log]: a new calendar fetch.")
+      const res = await fetch("/api/calendar");
+      const data = await res.json();
+      setCalendar(data.data);
+      reportStatus("calendar", "success");
+    } catch {
+      reportStatus("calendar", "error");
+    } 
+  }, []);
+
+  useDayChange((newDay) => {
+    console.log(`Day changed to ${newDay}, fetching calendar.`);
+    fetchCalendar();
+  });
+
   useEffect(() => {
-    fetch("/api/calendar")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Erro do servidor: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        setCalendar(data.data);
-        reportStatus("calendar", "success");
-      }).catch(() => {
-        reportStatus("calendar", "error");
-      });
+    fetchCalendar();
   }, []);
 
   const generateNextEventMessage = (date: string, title: string) => {
