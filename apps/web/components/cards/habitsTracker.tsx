@@ -122,27 +122,26 @@ const MultiHabitTracker = () => {
           })}
         </div>
       ) : (
-        <div className="space-y-6!">
+        <div className="space-y-4! flex">
           {HABITS.map(habit => (
-            <div key={habit.id}>
-              <p className="text-sm font-semibold mb-2! text-gray-600">{habit.label}</p>
-              <div className="grid grid-cols-7 gap-1">
-                {monthDays.map(day => {
-                  const dateKey = format(day, "yyyy-MM-dd");
-                  const isDone = completedDates[dateKey]?.includes(habit.id);
-                  return (
-                    <div 
-                      key={dateKey}
-                      title={dateKey}
-                      // aspect-square 
-                      className={`rounded-sm text-[10px] flex items-center justify-center ${
-                        isDone ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400"
-                      } ${isToday(day) ? "ring-2 ring-orange-300" : ""}`}
-                    >
-                      {format(day, "d")}
-                    </div>
-                  );
-                })}
+            <div key={habit.id} className="flex gap-2 w-full">
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold text-gray-600">{habit.label}</p>
+                <div className="grid grid-cols-7 gap-1 pt-1!">
+                  {monthDays.map(day => {
+                    const dateKey = format(day, "yyyy-MM-dd");
+                    const isDone = completedDates[dateKey]?.includes(habit.id);
+                    return (
+                      <div 
+                        key={dateKey}
+                        title={dateKey}
+                        className={`rounded-sm text-[10px] flex items-center justify-center w-4 h-4 ${
+                          isDone ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400"
+                        } ${isToday(day) ? "ring-2 ring-orange-300" : ""}`}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ))}
