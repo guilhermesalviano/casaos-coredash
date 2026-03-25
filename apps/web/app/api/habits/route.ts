@@ -93,7 +93,9 @@ async function getHabitStreak(habitName: string, repository: Repository<HabitTra
   if (diffInDays > 1) return { streak: 0, dates: null, lastDay: null };
 
   const dates = history.map((record) => {
-    return new Date(record.createdAt);
+    if (today.getMonth() === new Date(record.createdAt).getMonth()) {
+      return new Date(record.createdAt);
+    }
   });
 
   for (const record of history) {

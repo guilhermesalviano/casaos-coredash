@@ -9,10 +9,12 @@ import MultiHabitTracker from "./cards/habitsTracker";
 const today = new Date().getDay();
 const isWeekend = today === 0 || today === 6;
 
+const stocksCard = !isWeekend ? StocksCard : null;
+
 const ALL_CARDS = [
   WeatherCard,
   NewsCard,
-  !isWeekend ? StocksCard : null,
+  stocksCard,
   TodoCard,
   CalendarCard,
   MultiHabitTracker,
