@@ -1,7 +1,8 @@
 [
   {
     "httpRequest": {
-      "path": "/health"
+      "path": "/health",
+      "method": "GET"
     },
     "httpResponse": {
       "statusCode": 200,
@@ -11,6 +12,7 @@
   {
     "httpRequest": {
       "path": "/v1/forecast",
+      "method": "GET",
       "queryStringParameters": {
         "latitude": [".*"],
         "longitude": [".*"],
@@ -24,8 +26,8 @@
     "httpResponse": {
       "statusCode": 200,
       "body": {
-        "latitude": -16.375,
-        "longitude": -49,
+        "latitude": -23.5506507,
+        "longitude": -46.6333824,
         "generationtime_ms": 0.11444091796875,
         "utc_offset_seconds": -10800,
         "timezone": "America/Sao_Paulo",
@@ -83,6 +85,54 @@
             0, 0, 0, 0
           ]
         }
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/reverse",
+      "queryStringParameters": {
+        "lat": [ ".*" ],
+        "lon": [ ".*" ],
+        "format": [ "jsonv2" ]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [ "application/json" ]
+      },
+      "body": {
+        "place_id": 123456789,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+        "osm_type": "relation",
+        "osm_id": 298285,
+        "lat": "-23.5506507",
+        "lon": "-46.6333824",
+        "category": "boundary",
+        "type": "administrative",
+        "place_rank": 16,
+        "importance": 0.88,
+        "addresstype": "city",
+        "name": "São Paulo",
+        "display_name": "São Paulo, Região Imediata de São Paulo, Região Metropolitana de São Paulo, Região Geográfica Intermediária de São Paulo, São Paulo, Região Sudeste, Brasil",
+        "address": {
+          "city": "São Paulo",
+          "municipality": "Região Imediata de São Paulo",
+          "state": "São Paulo",
+          "ISO3166-2-lvl4": "BR-SP",
+          "region": "Região Sudeste",
+          "postcode": "01001-000",
+          "country": "Brasil",
+          "country_code": "br"
+        },
+        "boundingbox": [
+          "-24.0088147",
+          "-23.3562500",
+          "-46.8255250",
+          "-46.3650844"
+        ]
       }
     }
   }

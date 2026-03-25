@@ -7,7 +7,7 @@ const MOCK_BASE_URL = "http://localhost:1080";
 
 export const CONFIG = {
   OPEN_METEO_BASE_URL: `${isDev ? MOCK_BASE_URL : "https://api.open-meteo.com"}/v1/forecast`,
-  NOMINATIM_BASE_URL: "https://nominatim.openstreetmap.org/reverse",
+  NOMINATIM_BASE_URL: `${isDev ? MOCK_BASE_URL : "https://nominatim.openstreetmap.org"}/reverse`,
   SERPAPI_BASE_URL: "https://serpapi.com/search",
   BRAPI_BASE_URL: "https://brapi.dev/api/quote",
   MEDIASTACK_BASE_URL: "https://api.mediastack.com/v1/news",
