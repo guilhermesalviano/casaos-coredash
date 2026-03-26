@@ -2,10 +2,10 @@ import { CONFIG } from "@/config/config";
 import { BrapiResponse } from "@/types/services";
 
 export async function fetchBrapiAPI(stocks: string): Promise<BrapiResponse> {
-  const API_KEY = process.env.BRAPI_TOKEN;
+  const API_KEY = CONFIG.apis.brapiToken;
 
-  const response = await fetch(`${CONFIG.BRAPI_BASE_URL}/${stocks}?token=${API_KEY}`, {
-    next: { revalidate: CONFIG.UPDATE_INTERVAL_MS }
+  const response = await fetch(`${CONFIG.urls.brapi}/${stocks}?token=${API_KEY}`, {
+    next: { revalidate: CONFIG.updateIntervalMs }
   });
   const responseJson = await response.json();
 

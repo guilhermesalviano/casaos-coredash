@@ -10,10 +10,9 @@ import { TodoCheck } from "@/entities/TodoCheck";
 import { FlightCrawled } from "@/entities/FlightCrawled";
 import { WishlistAmazon } from "@/entities/WishlistAmazon";
 import { HabitTracker } from "@/entities/HabitTracker";
+import { CONFIG } from "@/config/config";
 
 let initializationPromise: Promise<DataSource> | null = null;
-
-const isDevMode = process.env.NODE_ENV === "development";
 
 const devType: DataSourceOptions = {
   type: "sqlite",
@@ -24,17 +23,17 @@ const devType: DataSourceOptions = {
 
 const prodType: DataSourceOptions = {
   type: "mariadb",
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT) || 3306,
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  host: CONFIG.db.host,
+  port: CONFIG.db.port,
+  database: CONFIG.db.name,
+  username: CONFIG.db.username,
+  password: CONFIG.db.password,
   synchronize: false,
   logging: false,
 }
 
 const devOrProdDataSource = {
-  ...(isDevMode ? devType : prodType),
+  ...(CONFIG.env === "development" ? devType : prodType),
   entities: [Todo, TodoRecurrence, WishlistAmazon, TodoCheck, FlightCrawled, User, HabitTracker, Weather, WeatherHour],
   subscribers: [],
   migrations: [],

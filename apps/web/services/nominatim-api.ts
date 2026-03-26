@@ -2,8 +2,8 @@ import { CONFIG } from "@/config/config";
 import { LocationResponse, NominatimProps } from "@/types/services";
 
 export async function fetchNominatimAPI({latitude, longitude}: NominatimProps): Promise<LocationResponse> {
-  const response = await fetch(`${CONFIG.NOMINATIM_BASE_URL}?format=jsonv2&lat=${latitude}&lon=${longitude}`, {
-    next: { revalidate: CONFIG.UPDATE_INTERVAL_MS },
+  const response = await fetch(`${CONFIG.urls.nominatim}?format=jsonv2&lat=${latitude}&lon=${longitude}`, {
+    next: { revalidate: CONFIG.updateIntervalMs },
   });
 
   if (!response.ok) {
