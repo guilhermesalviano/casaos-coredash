@@ -200,5 +200,72 @@
         ]
       }
     }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/quote/.*",
+      "queryStringParameters": {
+        "token": [ ".*" ]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [ "application/json" ]
+      },
+      "body": {
+        "results": [
+          {
+            "symbol": "PETR4",
+            "shortName": "PETROBRAS PN",
+            "longName": "Petróleo Brasileiro S.A. - Petrobras",
+            "currency": "BRL",
+            "regularMarketPrice": 38.52,
+            "regularMarketDayHigh": 39.10,
+            "regularMarketDayLow": 38.20,
+            "regularMarketDayRange": "38.20 - 39.10",
+            "regularMarketChange": 0.45,
+            "regularMarketChangePercent": 1.18,
+            "regularMarketTime": "2026-03-26T15:00:00.000Z",
+            "marketCap": 510000000000,
+            "regularMarketVolume": 45000000,
+            "regularMarketPreviousClose": 38.07,
+            "regularMarketOpen": 38.15,
+            "fiftyTwoWeekRange": "25.00 - 42.00",
+            "fiftyTwoWeekLow": 25.00,
+            "fiftyTwoWeekHigh": 42.00,
+            "priceEarnings": 4.2,
+            "earningsPerShare": 9.15,
+            "logourl": "https://s3-symbol-logo.tradingview.com/petrobras--big.svg"
+          },
+          {
+            "symbol": "VALE3",
+            "shortName": "VALE ON",
+            "longName": "Vale S.A.",
+            "currency": "BRL",
+            "regularMarketPrice": 62.15,
+            "regularMarketDayHigh": 63.05,
+            "regularMarketDayLow": 61.80,
+            "regularMarketDayRange": "61.80 - 63.05",
+            "regularMarketChange": -0.30,
+            "regularMarketChangePercent": -0.48,
+            "regularMarketTime": "2026-03-26T15:00:00.000Z",
+            "marketCap": 280000000000,
+            "regularMarketVolume": 18000000,
+            "regularMarketPreviousClose": 62.45,
+            "regularMarketOpen": 62.50,
+            "fiftyTwoWeekRange": "55.00 - 78.00",
+            "fiftyTwoWeekLow": 55.00,
+            "fiftyTwoWeekHigh": 78.00,
+            "priceEarnings": 6.8,
+            "earningsPerShare": 9.20,
+            "logourl": "https://s3-symbol-logo.tradingview.com/vale--big.svg"
+          }
+        ],
+        "requestedAt": "2026-03-26T15:10:00.000Z",
+        "took": 42
+      }
+    }
   }
 ]
