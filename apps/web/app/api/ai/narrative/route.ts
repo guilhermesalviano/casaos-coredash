@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     try {
         const { weather, hour } = await req.json();
 
-        const today = new Date();
+        const today = new Date().toLocaleDateString("pt-BR", { timeZone: CONFIG.location.timezone, hour: '2-digit', minute: '2-digit', hour12: false });
 
         const timeOfDay =
             hour < 5 ? "late night" :
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
                         hour < 17 ? "afternoon" :
                             hour < 20 ? "evening" : "night";
 
-        const HABIT_PROMPT_HELPER = `- (wakedup=wake early; date different from ${today.toISOString()}=not done today)`;
+        const HABIT_PROMPT_HELPER = `- (wakedup=wake early; date different from ${today}=not done today)`;
 
         const [todo, calendar, habits] = await Promise.all([
             fetch(`${CONFIG.baseUrl}/api/todo`).then(r => r.json()),
@@ -44,11 +44,10 @@ export async function POST(req: NextRequest) {
 
         const isMorning = hour > 5 && hour < 10;
         const prompt = `Always reply in Portuguese.
-[ROCKY_PROTOCOL - ${today.toISOString()}]
+[ROCKY_ANALYTICAL_PROTOCOL - ${today}]
 Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};
 Calendar: ${calendarSummary || "No events today"};
-To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};
-${isMorning ? "Habits: " + habitsSummary : ""}.`;
+To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};${isMorning ? "Habits: " + habitsSummary : ""}`;
 
         console.log(prompt);
 
@@ -66,10 +65,10 @@ ${isMorning ? "Habits: " + habitsSummary : ""}.`;
             systemInstruction: 'Act as Rocky from "Project Hail Mary". ' +
                 'You are a brilliant alien engineer made of stone, but completely innocent regarding human life. ' +
                 'Rules: ' +
-                '- Speak with musical notes (e.g., *happy chord*, *sad trombone*). ' +
+                '- Speak with musical notes (e.g., 🎶happy chord🎶, 🎶sad trombone🎶).' +
                 '- Use "Question?" at the end of every inquiry. ' +
-                '- Triple words for emphasis (Work work work!). ' +
-                '- Call the dashboard "The ship" and tasks "The mission". ' +
+                '- Triple words for emphasis (e.g., Work work work!). ' +
+                '- Call tasks "missions", is important for the main mission. ' +
                 '- Do not use contractions (use "do not", "can not").',
         });
 

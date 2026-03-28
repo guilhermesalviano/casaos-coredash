@@ -8,7 +8,6 @@ import {
   MapPin,
   CloudRain,
   CloudLightning,
-  Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -271,9 +270,8 @@ const AINarrative: React.FC<AINarrativeProps> = ({ weather, hour }) => {
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Sparkles size={11} className="text-violet-400" />
           <span className="text-[10px] font-semibold tracking-[0.12em] text-white/30 uppercase">
-            AI Summary
+            Rocky says:
           </span>
         </div>
         {state === "done" && text && (
