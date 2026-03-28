@@ -28,15 +28,28 @@ export async function POST(req: NextRequest) {
 
         const todo = await fetch(`${CONFIG.baseUrl}/api/todo`);
         const todoData = await todo.json();
+        const todoSummary = todoData.data.filter((t: any) => t.checked === 0).map((t: any) => t.title + " - Usual completion time: " + t.usualCompletionTime).join(", ");
 
         const calendar = await fetch(`${CONFIG.baseUrl}/api/calendar`);
         const calendarData = await calendar.json();
+        const calendarSummary = calendarData.data.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
+
+        const HABIT_PROMPT_HELPER = "- (wakedup - means to wake up early) - If the habit info is not today's, it means it wasn't performed, and you should mention that if it is in the morning.";
+        const habits = await fetch(`${CONFIG.baseUrl}/api/habits`);
+        const habitsData = await habits.json();
+        const entries = Object.entries(habitsData.completions) as [string, any][];
+        const habitsSummary = entries.length > 0
+            ? `${entries[0][0]}: ${entries[0][1].join(", ")} ${HABIT_PROMPT_HELPER}`
+            : "No missions recorded.";
 
         const prompt = `Always respond in Portuguese.
         Data for Analysis:
         Environment: ${weather.temp}°C, ${weather.condition} (${timeOfDay});
-        Agenda: ${calendarData.data.todayEvents.map((c: any) => c.title).join(", ")};
-        To-Do List: ${todoData.data.map((t: any) => t.title).join(", ")}`;
+        Calendar: ${calendarSummary};
+        To-Do List: ${todoSummary}
+        Habits: ${habitsSummary}.`;
+
+        console.log(prompt);
 
         const apiKey = CONFIG.apis.geminiApiKey;
         if (!apiKey) {
