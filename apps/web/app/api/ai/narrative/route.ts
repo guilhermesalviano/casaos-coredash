@@ -7,13 +7,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const narrativeCache = createMemoryCache<string>(ONE_MINUTE_IN_MS * 60 * 1);
 
 export async function POST(req: NextRequest) {
-    const cached = narrativeCache.get();
-    if (cached) {
-        return NextResponse.json({ message: "Narrative data from cache successfully", data: cached });
-    }
+    // const cached = narrativeCache.get();
+    // if (cached) {
+    //     return NextResponse.json({ message: "Narrative data from cache successfully", data: cached });
+    // }
 
     try {
         const { weather, hour } = await req.json();
+
+        const today = new Date();
 
         const timeOfDay =
             hour < 5 ? "late night" :
@@ -28,11 +30,13 @@ export async function POST(req: NextRequest) {
 
         const todo = await fetch(`${CONFIG.baseUrl}/api/todo`);
         const todoData = await todo.json();
-        const todoSummary = todoData.data.filter((t: any) => t.checked === 0).map((t: any) => t.title + " - Usual completion time: " + t.usualCompletionTime).join(", ");
+        const todoSummary = todoData.data.filter((t: any) => t.checked === 0).map((t: any) => {
+            return t.title + (t.usualCompletionTime ? " - Usual completion time: " + t.usualCompletionTime : "")
+        }).join(", ");
 
         const calendar = await fetch(`${CONFIG.baseUrl}/api/calendar`);
         const calendarData = await calendar.json();
-        const calendarSummary = calendarData.data.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
+        const calendarSummary = calendarData.data?.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
 
         const HABIT_PROMPT_HELPER = "- (wakedup - means to wake up early) - If the habit info is not today's, it means it wasn't performed, and you should mention that if it is in the morning.";
         const habits = await fetch(`${CONFIG.baseUrl}/api/habits`);
@@ -43,11 +47,11 @@ export async function POST(req: NextRequest) {
             : "No missions recorded.";
 
         const prompt = `Always respond in Portuguese.
-        Data for Analysis:
-        Environment: ${weather.temp}°C, ${weather.condition} (${timeOfDay});
-        Calendar: ${calendarSummary};
-        To-Do List: ${todoSummary}
-        Habits: ${habitsSummary}.`;
+        [ROCKY_PROTOCOL - ${today.toISOString()}]
+        Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};
+        Calendar: ${calendarSummary || "No events today"};
+        To-Do List(${todoData.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};
+        ${hour > 5 && hour < 10 ? "Habits: " + habitsSummary : ""}.`;
 
         console.log(prompt);
 
