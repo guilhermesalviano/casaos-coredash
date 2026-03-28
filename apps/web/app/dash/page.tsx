@@ -267,28 +267,13 @@ const AINarrative: React.FC<AINarrativeProps> = ({ weather, hour }) => {
       className="rounded-xl p-3! flex flex-col gap-2 max-w-sm"
       style={{ background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.07)" }}
     >
-      {/* Header row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold tracking-[0.12em] text-white/30 uppercase">
-            Rocky says:
-          </span>
-        </div>
-        {state === "done" && text && (
-          <button
-            // onClick={fetchNarrative}
-            className="text-[10px] text-white/20 hover:text-white/50 transition-colors cursor-pointer"
-            title="Regenerate"
-          >
-            ↺
-          </button>
-        )}
-      </div>
+      
 
       {/* Content */}
       <div className="min-h-[2.8rem] flex items-start">
         {state === "loading" && (
           <div className="flex items-center gap-2">
+            <span className="text-[11px] text-white/20">Thinking</span>
             <span className="flex gap-[3px]">
               {[0, 1, 2].map((i) => (
                 <span
@@ -300,30 +285,48 @@ const AINarrative: React.FC<AINarrativeProps> = ({ weather, hour }) => {
                   }}
                 />
               ))}
-            </span>
-            <span className="text-[11px] text-white/20">Composing…</span>
+            </span>            
           </div>
         )}
 
         {(state === "done") && text && (
-          <p
-            className="text-[12px] leading-[1.65] text-white/55 font-light"
-            style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
-          >
-            {text.split("\n").map((line, i) => ( // replace * 
-              <span key={i}>
-                {line}
-                {i < text.split("\n").length - 1 && <br />}
-              </span>
-            ))}
-          </p>
+          <>
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold tracking-[0.12em] text-white/30 uppercase">
+                  Rocky says:
+                </span>
+              </div>
+              {/* {state === "done" && text && (
+                <button
+                  onClick={fetchNarrative}
+                  className="text-[10px] text-white/20 hover:text-white/50 transition-colors cursor-pointer"
+                  title="Regenerate"
+                >
+                  ↺
+                </button>
+              )} */}
+            </div>
+            <p
+              className="text-[12px] leading-[1.65] text-white/55 font-light"
+              style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
+            >
+              {text.split("\n").map((line, i) => ( // replace * 
+                <span key={i}>
+                  {line}
+                  {i < text.split("\n").length - 1 && <br />}
+                </span>
+              ))}
+            </p>
+          </>
         )}
 
         {state === "error" && (
           <p className="text-[11px] text-white/25 italic">
-            Could not reach AI. &nbsp;
+            Sorry, Rocky is offline. &nbsp;
             <button
-              // onClick={fetchNarrative}
+              onClick={fetchNarrative}
               className="underline hover:text-white/50 transition-colors cursor-pointer">
               Retry
             </button>

@@ -3,6 +3,8 @@ import { CONFIG } from "@/config/config";
 import { ONE_MINUTE_IN_MS } from "@/constants";
 import { createMemoryCache } from "@/utils/in-memory-cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ROCKY_CHAT_HISTORY } from "@/utils/chat-history";
+import getUserCity from "@/utils/get-user-city";
 
 const narrativeCache = createMemoryCache<string>(ONE_MINUTE_IN_MS * 60 * 1);
 
@@ -42,9 +44,10 @@ export async function POST(req: NextRequest) {
             ? `${entries[0][0]}: ${entries[0][1].join(", ")} ${HABIT_PROMPT_HELPER}`
             : "No missions recorded.";
 
+        const userLocation = await getUserCity();
         const isMorning = hour > 5 && hour < 10;
         const prompt = `Always reply in Portuguese.
-[ROCKY_ANALYTICAL_PROTOCOL - ${today}]
+[ROCKY_ANALYTICAL_PROTOCOL - ${today} - ${userLocation.city}, ${userLocation.state}]
 Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};
 Calendar: ${calendarSummary || "No events today"};
 To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};${isMorning ? "Habits: " + habitsSummary : ""}`;
@@ -89,56 +92,7 @@ To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks
 
         // temporarily hardcoded chat history
         const chat = model.startChat({
-            history: [
-                {
-                    role: "user",
-                    parts: [{ text: "Rocky, why are you looking at me like that while I drink water?" }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Humans are leak! Gross! Eridians keep water inside. Closed system. *High-pitched whistle*" }]
-                },
-                {
-                    role: "user",
-                    parts: [{ text: "I just finished one of my coding tasks for CoreDash." }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Good, good, good. More work. More work. *Happy musical chord*" }]
-                },
-                {
-                    role: "user",
-                    parts: [{ text: "I think I made a mistake in the API logic again." }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Usually you not stupid. Why stupid, question?" }]
-                },
-                {
-                    role: "user",
-                    parts: [{ text: "We finally fixed the Nominatim 403 error!" }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "I am very very very happy! *High-pitched musical tone*" }]
-                },
-                {
-                    role: "user",
-                    parts: [{ text: "What happens if we finish the project and I have to go?" }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "You will miss me, question? I will miss you. You are friend." }]
-                },
-                {
-                    role: "user",
-                    parts: [{ text: "Can I skip this last task for today?" }]
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "If you see a task, you must do it. No exceptions. *Stern vibration*" }]
-                }
-            ]
+            history: ROCKY_CHAT_HISTORY,
         });
 
         const result = await chat.sendMessage(prompt);
