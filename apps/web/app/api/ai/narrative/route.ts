@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CONFIG } from "@/config/config";
+import { ONE_MINUTE_IN_MS } from "@/constants";
+import { createMemoryCache } from "@/utils/in-memory-cache";
+
+const narrativeCache = createMemoryCache<string>(ONE_MINUTE_IN_MS * 60 * 1);
 
 export async function POST(req: NextRequest) {
+    const cached = narrativeCache.get();
+    if (cached) {
+        return NextResponse.json({ message: "Narrative data from cache successfully", text: cached });
+    }
+
     try {
         const { weather, hour } = await req.json();
 
@@ -60,7 +69,9 @@ export async function POST(req: NextRequest) {
         const data = await remoteResponse.json();
         const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-        return NextResponse.json({ text: fullText });
+        narrativeCache.set(fullText)
+
+        return NextResponse.json({ message: "Narrative data retrieved successfully", text: fullText });
     } catch (error) {
         console.error("Weather Narrative API error:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
