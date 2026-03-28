@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import Clock from "@/components/clock";
 import SystemsStatus from "@/components/systemsStatus";
@@ -7,6 +11,16 @@ import Logo from "@/components/logo";
 import NotificationButton from "@/components/notifications";
 
 export default function Page() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push("/dash");
+    }, 60000);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
     <>
       <Loading />

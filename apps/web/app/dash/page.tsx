@@ -371,6 +371,7 @@ export default function IdleDashboard() {
         fontFamily: "'DM Sans', system-ui, sans-serif",
         transition: "background 2s ease",
       }}
+      onClick={handleClick}
     >
       {/* Atmospheric vignette */}
       <div
