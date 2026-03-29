@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 
-import { BellIcon } from "./bellIcon";
 type Notification = {
   id: string;
   title: string;
@@ -97,8 +96,8 @@ export default function NotificationButton() {
           background: "none",
           border: "1px solid var(--border)",
           borderRadius: "50%",
-          width: 34,
-          height: 34,
+          width: 40,
+          height: 40,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
@@ -119,8 +118,8 @@ export default function NotificationButton() {
           <span
             style={{
               position: "absolute",
-              top: 5,
-              right: 5,
+              top: 10,
+              right: 10,
               width: 7,
               height: 7,
               borderRadius: "50%",
@@ -329,5 +328,23 @@ export default function NotificationButton() {
         </div>
       )}
     </div>
+  );
+}
+
+function BellIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--muted)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
   );
 }

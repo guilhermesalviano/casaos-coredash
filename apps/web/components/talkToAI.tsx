@@ -14,8 +14,8 @@ export default function TalkToAI() {
           // backgroundHover: "var(--border)",
           border: "1px solid var(--border)",
           borderRadius: "50%",
-          width: 34,
-          height: 34,
+          width: 40,
+          height: 40,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
@@ -34,7 +34,7 @@ export default function TalkToAI() {
 }
 
 
-function SparkleIcon({ size = 15 }: { size?: number }) {
+function SparkleIcon({ size = 18 }: { size?: number }) {
   return (
     <svg
       width={size}
