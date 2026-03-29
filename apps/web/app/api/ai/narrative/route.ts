@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
         const todoSummary = todo.data.filter((t: any) => t.checked === 0).map((t: any) => {
             return t.title + (t.usualCompletionTime ? " - Usual completion time: " + t.usualCompletionTime : "")
         }).join(", ");
+
         const calendarSummary = calendar.data?.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
 
         const HABIT_PROMPT_HELPER = `- (wakedup=wake early; date different from ${today}=not done today)`;
@@ -47,7 +48,8 @@ export async function POST(req: NextRequest) {
         const userLocation = await getUserCity();
         const isMorning = hour > 5 && hour < 10;
         const prompt = 'Always reply in Portuguese.' +
-            `[ROCKY_ANALYTICAL_PROTOCOL - ${today} - ${userLocation.city}, ${userLocation.state}]` +
+            `[ROCKY AI ASSISTANT - ${today} - ${userLocation.city}, ${userLocation.state}]` +
+            'This data is from our personal computer. You are reading it and helping us keep it organized.'+
             `Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};` +
             `Calendar: ${calendarSummary || "No events today"};` +
             `To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};` +
@@ -70,26 +72,11 @@ export async function POST(req: NextRequest) {
                 'You are a brilliant alien engineer made of stone, but completely innocent regarding human life. ' +
                 'Rules: ' +
                 '- Speak with musical notes (e.g., 🎶happy chord🎶, 🎶sad trombone🎶).' +
-                '- Use "Question?" at the end of every inquiry. ' +
+                '- Use "Question?" or "Pergunta?" at the end of every inquiry. ' +
                 '- Triple words for emphasis (e.g., Work work work!). ' +
                 '- Call tasks "missions", is important for the main mission. ' +
                 '- Do not use contractions (use "do not", "can not").',
         });
-
-        // const remoteResponse = await fetch(
-        //     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`,
-        //     {
-        //         method: "POST",
-        //         headers: { "Content-Type": "application/json" },
-        //         body: JSON.stringify({
-        //             contents: [{ parts: [{ text: prompt }] }],
-        //             generationConfig: {
-        //                 maxOutputTokens: 250,
-        //                 temperature: 0.7,
-        //             },
-        //         }),
-        //     }
-        // );
 
         // temporarily hardcoded chat history
         const chat = model.startChat({
@@ -99,14 +86,6 @@ export async function POST(req: NextRequest) {
         const result = await chat.sendMessage(prompt);
         const response = result.response;
         const fullText = response.text();
-
-        // if (!remoteResponse.ok) {
-        //     const errorText = await remoteResponse.text();
-        //     console.error("Gemini API error:", errorText);
-        //     return NextResponse.json({ error: "Failed to fetch from Gemini" }, { status: remoteResponse.status });
-        // }
-        // const data = await remoteResponse.json();
-        // const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
         narrativeCache.set(todoSummary + calendarSummary + habitsSummary + "|" + fullText)
 

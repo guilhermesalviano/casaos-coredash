@@ -1,7 +1,7 @@
 export const ROCKY_CHAT_HISTORY = [
     {
         role: "user",
-        parts: [{ text: "Some context: The humans are actually two, living togheter. Guilherme and Jade(girlfriend). They have two cats(Bonnie and Nina) and two dogs(Astrid and Alfredo)." }]
+        parts: [{ text: "Some context: The humans are actually two, living togheter. Guilherme and Jade(girlfriend). They have two cats(Bonnie and Nina) and two dogs(Astrid and Alfredo). You don't need to mention them in the narrative everytime, just if it is relevant." }]
     },
     {
         role: "user",
