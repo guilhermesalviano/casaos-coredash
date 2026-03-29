@@ -11,6 +11,7 @@ const narrativeCache = createMemoryCache<string>(ONE_MINUTE_IN_MS * 60 * 1);
 export async function POST(req: NextRequest) {
     try {
         const today = new Date().toLocaleDateString("pt-BR", { timeZone: CONFIG.location.timezone, hour: '2-digit', minute: '2-digit', hour12: false });
+        const HABIT_PROMPT_HELPER = `- (wakedup=wake early; date different from ${today.split(",")[0]} = not done today)`;
 
         const [todo, calendar, habits] = await Promise.all([
             fetch(`${CONFIG.baseUrl}/api/todo`).then(r => r.json()),
@@ -19,12 +20,11 @@ export async function POST(req: NextRequest) {
         ]);
 
         const todoSummary = todo.data.filter((t: any) => t.checked === 0).map((t: any) => {
-            return t.title + (t.sponsor ? ", responsible: " + t.sponsor : "") + (t.usualCompletionTime ? ", last completion time: " + t.usualCompletionTime : "")
+            return t.title + (t.sponsor ? ", resp: " + t.sponsor : "") + (t.usualCompletionTime ? ", usual time: " + t.usualCompletionTime : "")
         }).join(", ");
 
         const calendarSummary = calendar.data?.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
 
-        const HABIT_PROMPT_HELPER = `- (wakedup=wake early; date different from ${today.split(",")[0]} = not done today)`;
         const entries = Object.entries(habits.completions) as [string, any][];
         const habitsSummary = entries.length > 0
             ? `${entries[0][0]}: ${entries[0][1].join(", ")} ${HABIT_PROMPT_HELPER}`
@@ -36,26 +36,31 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "Narrative data from cache successfully", data: cached.split("|")[1] });
         }
 
+        const todoCount = todo.data.filter((t: any) => t.checked === 0).length;
+
         const { weather, hour } = await req.json();
 
-        const timeOfDay =
-            hour < 5 ? "late night" :
-                hour < 10 ? "morning" :
-                    hour < 12 ? "late morning" :
-                        hour < 17 ? "afternoon" :
-                            hour < 20 ? "evening" : "night";
+        const forecastSummary = weather.forecast.map((h: any) => `${h.time}:${h.condition},${h.temp}°C`).join("|");
 
+        // const timeOfDay =
+        //     hour < 5 ? "late night" :
+        //         hour < 10 ? "morning" :
+        //             hour < 12 ? "late morning" :
+        //                 hour < 17 ? "afternoon" :
+        //                     hour < 20 ? "evening" : "night";
+
+        // const willBeRain = weather.forecast.map((h: any) =>
+        //     /chuva|tempestade|rain|drizzle|shower|storm|trovoada/i.test(h.condition)).some((r: boolean) => r);
         const userLocation = await getUserCity();
-        const isRaining = /chuva|tempestade|rain|drizzle|shower|storm/i.test(weather.condition);
+
         const isMorning = hour > 5 && hour < 10;
         const prompt = [
             CONFIG.isDev && "[MOCK]",
-            `[${today}|${userLocation.city},${userLocation.state}]`,
-            `W:${weather.temp}°C,${weather.condition},${timeOfDay}`,
-            (isMorning || isRaining) && `F:${weather.forecast.map((h: any) => `${h.time}:${h.condition}`).join("|")}`,
+            `[${today}|${userLocation.city},${userLocation.state}|W:${weather.temp}°C,${weather.condition}]`,
+            `F[↑specific]:${forecastSummary}`,
             `C:${calendarSummary || "∅"}`,
-            `T(${todo.data.filter((t: any) => t.checked === 0).length} - Reminder if necessary):${todoSummary || "∅"}`,
-            isMorning && `H:${habitsSummary}`,
+            `T(${todoCount}⏰):${todoSummary || "∅"}`,
+            isMorning && `H[↑specific]:${habitsSummary}`,
         ].filter(Boolean).join(";");
 
         console.log(prompt);
@@ -79,11 +84,8 @@ export async function POST(req: NextRequest) {
                 '- Help them keep their ship (house/life) organized using the prompt data.' +
                 '- Consider usual completion time of tasks to suggest in the best time to do them. ' +
                 '- Use "Question?" or "Pergunta?" at the end of every inquiry. ' +
-                '- Emphasis = triple words (Work work work!).' +
-                '- tasks = "missions".' +
-                '- No contractions (do not, can not).',
-                // '- Use single-letter prefixes (W: weather, F: forecast, C: calendar, T: todos, H: habits). ' +
-                // '- Speak with musical notes (e.g., 🎶happy chord🎶, 🎶sad trombone🎶).' +
+                '- Emphasis = triple words (Work work work!). Tasks = "missions".' +
+                '- Single-letter prefixes (W: weather, F: forecast, C: calendar, T: todos, H: habits). ',
         });
 
         // temporarily hardcoded chat history
