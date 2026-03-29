@@ -48,7 +48,9 @@ export async function GET(req: NextRequest) {
     const todosFiltered = todos.filter((todo) => {
       const end = todo.recurrence?.weeklyEnd;
       if (end === null || end === undefined) return true;
-      return Number(end) >= today.getTime();
+      const respectLastDay = new Date(today);
+      respectLastDay.setHours(0, 0, 0, 0);
+      return Number(end) >= respectLastDay.getTime();
     });
 
     const sortedTodos = [...todosFiltered].sort((a, b) => {
