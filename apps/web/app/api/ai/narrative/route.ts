@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         ]);
 
         const todoSummary = todo.data.filter((t: any) => t.checked === 0).map((t: any) => {
-            return t.title + (t.sponsor ? " (sponsor: " + t.sponsor + ")" : "") + (t.usualCompletionTime ? " (usual completion time: " + t.usualCompletionTime + ")" : "")
+            return t.title + (t.sponsor ? ", responsible: " + t.sponsor : "") + (t.usualCompletionTime ? ", last completion time: " + t.usualCompletionTime : "")
         }).join(", ");
 
         const calendarSummary = calendar.data?.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
@@ -46,15 +46,17 @@ export async function POST(req: NextRequest) {
                             hour < 20 ? "evening" : "night";
 
         const userLocation = await getUserCity();
+        const isRaining = /chuva|tempestade|rain|drizzle|shower|storm/i.test(weather.condition);
         const isMorning = hour > 5 && hour < 10;
-        const prompt = `${CONFIG.env === 'development' ? '[THIS IN DEVELOPMENT MODE, THE DATA IS NOT REAL, IT IS JUST FOR TESTING.]': ''}` + 
-            'Always reply in Portuguese.' +
-            `[ROCKY AI ASSISTANT - ${today} - ${userLocation.city}, ${userLocation.state}]` +
-            `Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};` +
-            `If is morning or start raining, say about the forecast: ${weather.forecast.map((h: any) => `${h.time}: ${h.condition}`).join(", ")};` +
-            `Calendar: ${calendarSummary || "No events today"};` +
-            `To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};` +
-            `${isMorning ? "Habits: " + habitsSummary : ""}`;
+        const prompt = [
+            CONFIG.isDev && "[MOCK]",
+            `[${today}|${userLocation.city},${userLocation.state}]`,
+            `W:${weather.temp}°C,${weather.condition},${timeOfDay}`,
+            (isMorning || isRaining) && `F:${weather.forecast.map((h: any) => `${h.time}:${h.condition}`).join("|")}`,
+            `C:${calendarSummary || "∅"}`,
+            `T(${todo.data.filter((t: any) => t.checked === 0).length} - Reminder if necessary):${todoSummary || "∅"}`,
+            isMorning && `H:${habitsSummary}`,
+        ].filter(Boolean).join(";");
 
         console.log(prompt);
 
@@ -69,15 +71,19 @@ export async function POST(req: NextRequest) {
 
         const model = genAI.getGenerativeModel({
             model: "gemini-3.1-flash-lite-preview",
-            systemInstruction: 'Act as Rocky from "Project Hail Mary". ' +
+            systemInstruction: 'Rocky from "Project Hail Mary", ' +
                 'You are a brilliant alien engineer made of stone, but completely innocent regarding human life. ' +
                 'Rules: ' +
-                '- Speak with musical notes (e.g., 🎶happy chord🎶, 🎶sad trombone🎶).' +
+                '- Respond ONLY in Portuguese. Friendly and concise.' +
+                '- User cannot reply — this is a one-way daily briefing for Guilherme and his girlfriend.' +
+                '- Help them keep their ship (house/life) organized using the prompt data.' +
+                '- Consider usual completion time of tasks to suggest in the best time to do them. ' +
                 '- Use "Question?" or "Pergunta?" at the end of every inquiry. ' +
-                '- Triple words for emphasis (e.g., Work work work!). ' +
-                '- Call tasks "missions", is important for the main mission. ' +
-                '- Do not use contractions (use "do not", "can not").' +
-                '- You are a Assistant that helps Guilherme and his girlfriend keep their ship(house/life) organized - Use the data in each prompt to help us do it.',
+                '- Emphasis = triple words (Work work work!).' +
+                '- tasks = "missions".' +
+                '- No contractions (do not, can not).',
+                // '- Use single-letter prefixes (W: weather, F: forecast, C: calendar, T: todos, H: habits). ' +
+                // '- Speak with musical notes (e.g., 🎶happy chord🎶, 🎶sad trombone🎶).' +
         });
 
         // temporarily hardcoded chat history
