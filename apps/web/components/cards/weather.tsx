@@ -3,7 +3,7 @@
 import { useDashboard } from "@/hooks/useDashboard";
 import Card from "../card";
 
-const RAIN_CODES = new Set([51,53,55,56,57,61,63,65,66,67,80,81,82,85,86,95,96,99]);
+const RAIN_CODES = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 85, 86, 95, 96, 99]);
 const isRaining = (code: number) => RAIN_CODES.has(code);
 
 export default function WeatherCard() {
@@ -16,7 +16,7 @@ export default function WeatherCard() {
   if (weather.status === "error" || !weather.data) {
     return <Card className="weather-card">Erro na busca de dados, tente novamente.</Card>;
   }
-  
+
   const w = weather.data;
   const raining = isRaining(w.code);
 

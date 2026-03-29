@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
 
         const userLocation = await getUserCity();
         const isMorning = hour > 5 && hour < 10;
-        const prompt = 'Always reply in Portuguese.' +
+        const prompt = `${CONFIG.env === 'development' ? '[THIS IN DEVELOPMENT MODE, THE DATA IS NOT REAL, IT IS JUST FOR TESTING.]': ''}` + 
+            'Always reply in Portuguese.' +
             `[ROCKY AI ASSISTANT - ${today} - ${userLocation.city}, ${userLocation.state}]` +
             'This data is from our personal computer(Guilherme and his girlfriend). You are reading it and helping us keep it organized you do not need to mention this in the response.'+
             `Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};` +

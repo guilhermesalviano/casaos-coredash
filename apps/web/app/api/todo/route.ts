@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
         title: todo.title,
         checked: check?.checked ?? 0,
         priority: todo.priority,
+        sponsor: todo.sponsor ?? '',
         usualCompletionTime: checkHistory?.hour ?? '' // data for AI.
       }
     });

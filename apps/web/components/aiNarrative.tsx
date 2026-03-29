@@ -40,12 +40,7 @@ export const AINarrative: React.FC<AINarrativeProps> = ({ weather, hour }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          weather: {
-            city: weather.city,
-            state: weather.state,
-            temp: weather.temp,
-            condition: weather.condition,
-          },
+          weather,
           hour,
         }),
         signal: abortRef.current.signal,
