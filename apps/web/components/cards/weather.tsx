@@ -32,7 +32,7 @@ export default function WeatherCard() {
         <div className="weather-icon-big">{w.icon}</div>
       </div>
       <div className="weather-hours">
-        {w.forecast?.map((h: any) => (
+        {w.forecast?.slice(0, 6).map((h: any) => (
           <div key={h.time} className={`weather-hour ${isRaining(h.code) ? "weather-hour--raining" : ""}`}>
             <span className="weather-hour-time">{h.time}</span>
             <span>{h.icon}</span>

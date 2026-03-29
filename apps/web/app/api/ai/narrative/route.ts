@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
             `[ROCKY AI ASSISTANT - ${today} - ${userLocation.city}, ${userLocation.state}]` +
             'This data is from our personal computer(Guilherme and his girlfriend). You are reading it and helping us keep it organized you do not need to mention this in the response.'+
             `Environment: ${weather.temp}°C, ${weather.condition}, ${timeOfDay};` +
+            `If is morning or start raining, say about the forecast: ${weather.forecast.map((h: any) => `${h.time}: ${h.condition}`).join(", ")};` +
             `Calendar: ${calendarSummary || "No events today"};` +
             `To-Do List(${todo.data.filter((t: any) => t.checked === 0).length} pending tasks): ${todoSummary || "No pending tasks today"};` +
             `${isMorning ? "Habits: " + habitsSummary : ""}`;

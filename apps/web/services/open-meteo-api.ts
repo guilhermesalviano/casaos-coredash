@@ -6,7 +6,7 @@ export async function fetchOpenMeteoAPI({latitude, longitude}: OpenMeteoProps): 
   const now = new Date();
 
   const start = format(now, "yyyy-MM-dd'T'HH:00");
-  const end = format(addHours(now, 7), "yyyy-MM-dd'T'HH:00");
+  const end = format(addHours(now, 10), "yyyy-MM-dd'T'HH:00");
 
   const response = await fetch(`${CONFIG.urls.openMeteo}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code&hourly=temperature_2m,weather_code,precipitation_probability,is_day&start_hour=${start}&end_hour=${end}&timezone=${CONFIG.location.timezone}`, {
     next: { revalidate: 1 * 60 * 60 },

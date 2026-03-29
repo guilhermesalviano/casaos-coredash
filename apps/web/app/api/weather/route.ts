@@ -8,7 +8,7 @@ import { WeatherInternalAPIResponse } from "@/types/weather-api";
 import getUserCity from "@/utils/get-user-city";
 import { CONFIG } from "@/config/config";
 
-const weatherCache = createMemoryCache<WeatherInternalAPIResponse>(ONE_MINUTE_IN_MS * 10);
+const weatherCache = createMemoryCache<WeatherInternalAPIResponse>(ONE_MINUTE_IN_MS * 60 * 1);
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,11 +24,7 @@ export async function GET(req: NextRequest) {
       })
     );
 
-    const actualHour = Number(weather.hourly.time[0].match(/T(\d{2})/)?.[1]);
-    const sliceEnd = actualHour >= 16 ? 7 : 8;
-
     const hours = weather.hourly.time
-      .slice(1, sliceEnd)
       .map((t: string, index: number) => ({
         timestamp: t,
         time: new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit" }) + "h",
