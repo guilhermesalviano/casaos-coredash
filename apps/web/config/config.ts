@@ -22,7 +22,7 @@ function optional(key: string, fallback = ""): string {
 }
 
 export const CONFIG = {
-  env: process.env.NODE_ENV as "development" | "production" | "test",
+  isDev,
   baseUrl: required("BASE_URL"),
 
   urls: {
