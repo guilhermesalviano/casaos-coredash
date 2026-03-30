@@ -145,8 +145,8 @@ export default function TaskModal({ isOpen, onClose, onAdd }: TaskModalProps) {
                             recurrence: {
                               ...f.recurrence,
                               weeklyDays: selected
-                                ? f.recurrence.weeklyDays.filter((d) => d !== day.value)
-                                : [...f.recurrence?.weeklyDays, day.value],
+                                ? f.recurrence.weeklyDays?.filter((d) => d !== day.value)
+                                : [...(f.recurrence?.weeklyDays || []), day.value],
                             },
                           }))
                         }
