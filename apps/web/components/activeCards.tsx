@@ -5,15 +5,12 @@ import TodoCard from "@/components/cards/todo";
 import StatusReporter from "./statusReporter";
 import MultiHabitTracker from "./cards/habitsTracker";
 
-const today = new Date().getDay();
-const isWeekend = today === 0 || today === 6;
-
-const stocksCard = !isWeekend ? StocksCard : null;
+const isWeekend = [0, 6].includes(new Date().getDay());
 
 const ALL_CARDS = [
   WeatherCard,
   MultiHabitTracker,
-  stocksCard,
+  !isWeekend && StocksCard,
   TodoCard,
   CalendarCard,
 ].filter(Boolean) as React.ComponentType[];
