@@ -1,23 +1,16 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import Button from "./button";
+import Link from "next/link";
 
 export default function TalkToAI() {
-  const router = useRouter();
-
   return (
-    <>
-      <Button
-        onClick={() => router.push("/ai")}
-        ariaLabel="Open AI assistant"
-      >
-        <SparkleIcon />
-      </Button>
-    </>
+    <Link
+      href="/ai"
+      className="icon-button"
+      aria-label="Open AI assistant"
+    >
+      <SparkleIcon />
+    </Link>
   );
 }
-
 
 function SparkleIcon({ size = 18 }: { size?: number }) {
   return (
