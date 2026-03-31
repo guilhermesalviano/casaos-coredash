@@ -30,7 +30,7 @@ const MultiHabitTracker = () => {
     try {
       const res = await fetch("/api/habits");
       const data = await res.json();
-      setCompletedDates(data.completions || {});
+      setCompletedDates(data.data);
       reportStatus("habit", "success");
     } catch (error) {
       reportStatus("habit", "error");
