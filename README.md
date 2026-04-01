@@ -1,12 +1,32 @@
-# CoreDash
-CoreDash is a lightweight, self-hosted personal dashboard designed to breathe new life into older hardware.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/apps/web/public/logo.png" width="120" />
+<p align="left">
+  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/apps/web/public/logo.png" height="48" />
+  &nbsp;&nbsp;
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=36&pause=2000&color=6366F1&vCenter=true&width=260&height=48&lines=CoreDash" alt="CoreDash" />
 </p>
+CoreDash is a lightweight, self-hosted personal dashboard designed to breathe new life into older hardware.
 
 ## 🚀 Overview
 Built for personal automation, system monitoring, and habit tracking, CoreDash is optimized for low-cost, "home lab" style hardware.
+
+## Getting started
+ 
+```bash
+docker run -d \
+  -p 3000:3000 \
+  --name coredash \
+  guilhermesalviano/coredash:latest
+```
+ 
+Or with Docker Compose:
+ 
+```yaml
+services:
+  coredash:
+    image: guilhermesalviano/coredash:latest
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+```
 
 ### My Current Stack
 
