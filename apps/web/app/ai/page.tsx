@@ -9,6 +9,7 @@ import { AINarrative } from "@/components/aiNarrative";
 import { LightningFlash } from "@/components/lightningFlash";
 import { RainCanvas } from "@/components/rain";
 import { getAtmosphericOverlay, getDayNightBackground } from "@/components/backgrounds";
+import DashboardButton from "@/components/backToDashboard";
 
 // ─── Panel & Label ────────────────────────────────────────────────────────────
 
@@ -39,18 +40,14 @@ export default function AiAnalysis() {
   const background = getDayNightBackground(clock.hour, weatherCode);
   const atmosphericOverlay = getAtmosphericOverlay(clock.hour, weatherCode);
 
-  const handleClick = useCallback(() => {
-    router.push("/");
-  }, [router]);
-
   if (!weather.data || weather.status === "idle" || weather.status === "loading" || weather.status === "error") {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
         style={{ background: getDayNightBackground(clock.hour) }}
+        onClick={() => router.refresh()}
       >
         <button
-          onClick={() => router.refresh()}
           className="text-white/30 text-sm hover:text-white/60 transition-colors"
         >
           ↺ reconnect
@@ -70,7 +67,6 @@ export default function AiAnalysis() {
         fontFamily: "'DM Sans', system-ui, sans-serif",
         transition: "background 2s ease",
       }}
-      onClick={handleClick}
     >
       {/* Atmospheric overlay */}
       <div
@@ -125,6 +121,8 @@ export default function AiAnalysis() {
           <AINarrative weather={w} hour={clock.hour} />
         </Panel>
       </div>
+
+      <DashboardButton />
     </div>
   );
 }

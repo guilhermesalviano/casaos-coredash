@@ -4,6 +4,7 @@ import getUserCity from "@/utils/get-user-city";
 import { format } from "date-fns";
 import logger from "@/lib/logger";
 import OllamaProvider from "@/lib/ai/providers/ollama";
+import { ROCKY_INSTRUCTION } from "@/lib/ai/assistants/rocky/instruction";
 
 export const maxDuration = 300; 
 
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
 
         const prompt = [
             CONFIG.isDev && "[MOCK]",
-            "dont list all the information you recieved in this prompt, but use it to create a personalized narrative for the user. Be concise and engaging.",
+            "don't list all the information you recieved in this prompt, but use it to create a personalized narrative for the user.",
             `[${today}|${userLocation.city},${userLocation.state}|weather:${weather.temp}°C,${weather.condition}]`,
             `forecast[↑specific|${willBeRain ? "rain" : "no rain"}]:${forecastSummary}`,
             `calendar:${calendarSummary || "∅"}`,
@@ -54,12 +55,12 @@ export async function POST(req: NextRequest) {
             isMorning && `habits[↑specific]:${habitsSummary}`,
         ].filter(Boolean).join(";");
 
-        logger.info(`starting narrative generation with prompt: ${prompt}`);
+        logger.info(`prompt: ${prompt}`);
+        logger.info(`instruction: ${ROCKY_INSTRUCTION}`);
 
         const { stream, error } = await OllamaProvider({
             prompt,
-            // systemInstruction: ROCKY_INSTRUCTION,
-            // history: ROCKY_CHAT_HISTORY,
+            systemInstruction: ROCKY_INSTRUCTION,
         });
         if (error || !stream) {
             logger.error("Error initializing Ollama stream", { error });
