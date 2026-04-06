@@ -11,7 +11,6 @@ export const maxDuration = 300;
 export async function POST(req: NextRequest) {
     try {
         const today = format(new Date(), "yyyy-MM-dd");
-        const HABIT_PROMPT_HELPER = `- (wakedup=wake up at 7am; date different from ${today} = not done today)`;
 
         const [todo, calendar, habits] = await Promise.all([
             fetch(`${CONFIG.baseUrl}/api/todo`).then(r => r.json()),
@@ -25,11 +24,6 @@ export async function POST(req: NextRequest) {
         }).join(", ");
 
         const calendarSummary = calendar.data?.todayEvents.map((c: any) => c.title + " at " + c.start).join(", ");
-
-        const entries = Object.entries(habits.data) as [string, any][];
-        const habitsSummary = entries.length > 0
-            ? `${entries[0][0]}: ${entries[0][1].join(", ")} ${HABIT_PROMPT_HELPER}`
-            : "No missions recorded.";
 
         const body = await req.text();
         if (!body) return NextResponse.json({ error: "Empty request body" }, { status: 400 });
@@ -45,6 +39,15 @@ export async function POST(req: NextRequest) {
         const todoCount = todo.data.filter((t: any) => t.checked === 0).length;
         const isMorning = hour >= 6 && hour <= 12;
 
+        const HABITSINSTRUCTION = "instructions: waking up early, studying, exercising.";
+
+        const entries = Object.entries(habits.data) as [string, any][];
+        const habitsSummary = HABITSINSTRUCTION + " " + (entries.length > 0 
+            ? entries[0][0] === today 
+                ? `Completed habits for ${today}: ${entries[0][1].join(", ")}` 
+                : `No habits have been completed ${isMorning ? "yet" : "today"}.`
+            : "No habit history found.");
+
         const prompt = [
             CONFIG.isDev && "[MOCK]",
             "don't list all the information you recieved in this prompt, but use it to create a personalized narrative for the user.",
@@ -52,18 +55,15 @@ export async function POST(req: NextRequest) {
             `forecast[↑specific|${willBeRain ? "rain" : "no rain"}]:${forecastSummary}`,
             `calendar:${calendarSummary || "∅"}`,
             `reminders(${todoCount}⏰):${todoSummary || "∅"}`,
-            isMorning && `habits[↑specific]:${habitsSummary}`,
+            `habits:${habitsSummary}`,
         ].filter(Boolean).join(";");
-
-        logger.info(`prompt: ${prompt}`);
-        logger.info(`instruction: ${ROCKY_INSTRUCTION}`);
 
         const { stream, error } = await OllamaProvider({
             prompt,
             systemInstruction: ROCKY_INSTRUCTION,
         });
         if (error || !stream) {
-            logger.error("Error initializing Ollama stream", { error });
+            logger.error(error);
             return NextResponse.json({ error }, { status: 500 });
         }
 
