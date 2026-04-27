@@ -47,6 +47,9 @@ export const GOOGLE = {
   clientEmail: required("GOOGLE_CLIENT_EMAIL"),
   privateKey: required("GOOGLE_PRIVATE_KEY").replace(/\\n/g, "\n"),
   calendarIds: optional("GOOGLE_CALENDAR_IDS").split(";").filter(Boolean),
+  gmailClientId: required("GOOGLE_GMAIL_CLIENT_ID"),
+  gmailClientSecret: required("GOOGLE_GMAIL_CLIENT_SECRET"),
+  gmailRefreshToken: required("GOOGLE_GMAIL_REFRESH_TOKEN"),
 }
 
 export const APIS = {
