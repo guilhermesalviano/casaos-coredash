@@ -21,6 +21,57 @@ function normalizeDate(raw: string): string {
   }).format(date).replace(' ', 'T');
 }
 
+function extractHtmlBody(payload: {
+  mimeType?: string | null;
+  body?: { data?: string | null } | null;
+  parts?: { mimeType?: string | null; body?: { data?: string | null } | null; parts?: unknown[] | null }[] | null;
+}): string {
+  const decode = (data: string) =>
+    Buffer.from(data.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+
+  if (payload.mimeType === 'text/html' && payload.body?.data) return decode(payload.body.data);
+
+  if (payload.parts) {
+    for (const part of payload.parts as typeof payload[]) {
+      const result = extractHtmlBody(part);
+      if (result) return result;
+    }
+  }
+
+  return '';
+}
+
+export async function fetchGmailMessage(id: string): Promise<GmailMessage> {
+  const auth = new google.auth.OAuth2(
+    GOOGLE.gmailClientId,
+    GOOGLE.gmailClientSecret,
+  );
+
+  auth.setCredentials({ refresh_token: GOOGLE.gmailRefreshToken });
+
+  const gmail = google.gmail({ version: 'v1', auth });
+
+  const detail = await gmail.users.messages.get({
+    userId: 'me',
+    id,
+    format: 'full',
+  });
+
+  const headers = (detail.data.payload?.headers ?? []) as { name: string; value: string }[];
+  const labelIds = detail.data.labelIds ?? [];
+
+  return {
+    id: detail.data.id!,
+    threadId: detail.data.threadId!,
+    snippet: detail.data.snippet ?? '',
+    from: getHeader(headers, 'From').replace('\u003C', '- ').replace('\u003E', '').trim(),
+    subject: getHeader(headers, 'Subject'),
+    date: normalizeDate(getHeader(headers, 'Date')),
+    isUnread: labelIds.includes('UNREAD'),
+    body: detail.data.payload ? extractHtmlBody(detail.data.payload) : '',
+  };
+}
+
 export async function fetchGoogleGmailAPI(): Promise<GmailMessage[]> {
   const auth = new google.auth.OAuth2(
     GOOGLE.gmailClientId,

@@ -6,6 +6,7 @@ export interface GmailMessage {
   subject: string;
   date: string;
   isUnread: boolean;
+  body?: string;
 }
 
 export interface GmailInternalAPIResponse {
