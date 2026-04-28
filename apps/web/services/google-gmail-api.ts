@@ -33,7 +33,7 @@ export async function fetchGoogleGmailAPI(): Promise<GmailMessage[]> {
 
   const listRes = await gmail.users.messages.list({
     userId: 'me',
-    maxResults: 10,
+    maxResults: 15,
     labelIds: ['INBOX'],
   });
 
