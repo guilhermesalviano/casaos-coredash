@@ -310,7 +310,6 @@ body {
 .calendar-date {
   font-size: 12px;
   color: var(--muted);
-  margin-bottom: 14px;
   text-transform: capitalize;
 }
 
