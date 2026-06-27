@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/apps/web/public/logo.png" height="48" />
+  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/web/public/logo.png" height="48" />
   &nbsp;&nbsp;
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=36&pause=2000&color=6366F1&vCenter=true&width=260&height=48&lines=CoreDash" alt="CoreDash" />
 </p>
@@ -27,15 +27,6 @@ services:
       - "3000:3000"
     restart: unless-stopped
 ```
-
-### My Current Stack
-
-#### Hardware
-| Item                    | Specification                          | Technology                  |
-|-------------------------|----------------------------------------|-----------------------------|
-| **Server**              | Samsung RV415                          |  Debian - CasaOS            |
-| **Client Device**       | Generic Android Tablet                 |  Fully Kiosk Browser        |
-
 ## 🛠 Development
 #### Prerequisites
 - Node.js (LTS version)
@@ -45,7 +36,7 @@ services:
 To start the frontend development server:
 
 ```Bash
-cd apps/web
+cd web
 npm run dev
 ```
 #### Mock Services
