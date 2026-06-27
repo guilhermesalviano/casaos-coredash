@@ -2,17 +2,17 @@ import WeatherCardClient from "./cards/clients/weatherCardClient";
 import CalendarCardClient from "./cards/clients/calendarCardClient";
 import StocksCardClient from "@/components/cards/clients/stocksCardClient";
 import StatusReporter from "./statusReporter";
-import HabitsCardClient from "./cards/clients/habitsCardClient";
 import TodoCardClient from "./cards/clients/todoCardClient";
+import NarrativeSummaryCard from "./cards/narrativeSummaryCard";
 
 const isWeekend = [0, 6].includes(new Date().getDay());
 
 const ALL_CARDS = [
   WeatherCardClient,
-  HabitsCardClient,
-  !isWeekend && StocksCardClient,
-  TodoCardClient,
   CalendarCardClient,
+  !isWeekend && StocksCardClient,
+  NarrativeSummaryCard,
+  TodoCardClient,
 ].filter(Boolean) as React.ComponentType[];
 
 const autoSuccessStatuses = [

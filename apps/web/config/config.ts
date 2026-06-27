@@ -24,7 +24,7 @@ export const EXTERNAL_SERVICES = {
   serpApi: api("https://serpapi.com", "/search"),
   brapi: api("https://brapi.dev", "/api/quote"),
   mediastack: "https://api.mediastack.com/v1/news",
-  ollama: optional("OLLAMA_URL", "http://192.168.3.140:11434"),
+  ollama: optional("OLLAMA_URL", "http://localhost:11434"),
 }
 
 export const LOCATION = {

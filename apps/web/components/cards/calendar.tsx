@@ -16,32 +16,42 @@ function nextEventMessage(date: string, title: string) {
   return `Faltam ${days} ${days === 1 ? "dia" : "dias"} para o ${title}`;
 }
 
-export default function CalendarCard({ data }: { data: any }) {
+type TodayEvent = {
+  id: string | number;
+  color: string;
+  start: string;
+  end: string;
+  title: string;
+};
+
+type ImportantEvent = {
+  id: string | number;
+  type: string;
+  start: string;
+  title: string;
+};
+
+type CalendarCardData = {
+  todayEvents?: TodayEvent[];
+  importantEvents?: ImportantEvent[];
+};
+
+export default function CalendarCard({ data }: { data: CalendarCardData }) {
   const dateStr = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <Card>
       <h2 className="section-title mb-0!">📅 Calendário</h2>
 
-      {data.importantEvents?.map((ev: any) => {
-        const m = EVENT_MAPPING[ev.type] ?? EVENT_MAPPING.default;
-        return (
-          <div key={ev.id} className={`flex items-center gap-2 text-[0.7rem] my-2! px-2! py-1! rounded-md font-medium animate-appear ${m.bg} ${m.color}`}>
-            <span className={ev.type === "birthday" ? "animate-bounce" : ""}>{m.emoji}</span>
-            <span>{nextEventMessage(ev.start, ev.title)}</span>
-          </div>
-        );
-      })}
+      <div className="calendar-date my-1!">{dateStr}</div>
 
-      <div className="calendar-date">{dateStr}</div>
-
-      <div className="calendar-events">
+      <div className="calendar-events mb-1!">
         {!data.todayEvents?.length && (
           <div className="calendar-event" style={{ borderLeft: "3px solid #9CA3AF" }}>
             <span className="event-title">Nenhum evento para hoje</span>
           </div>
         )}
-        {data.todayEvents?.map((ev: any) => (
+        {data.todayEvents?.map((ev) => (
           <div key={ev.id} className="calendar-event max-sm:flex-col max-sm:gap-2!" style={{ borderLeft: `3px solid ${ev.color}` }}>
             <div className="flex items-center gap-2">
               <span className="event-title">Personal:</span>
@@ -53,6 +63,16 @@ export default function CalendarCard({ data }: { data: any }) {
           </div>
         ))}
       </div>
+
+      {data.importantEvents?.map((ev) => {
+        const m = EVENT_MAPPING[ev.type] ?? EVENT_MAPPING.default;
+        return (
+          <div key={ev.id} className={`flex items-center gap-2 text-[0.7rem] my-2! px-2! py-1! rounded-md font-medium animate-appear ${m.bg} ${m.color}`}>
+            <span className={ev.type === "birthday" ? "animate-bounce" : ""}>{m.emoji}</span>
+            <span>{nextEventMessage(ev.start, ev.title)}</span>
+          </div>
+        );
+      })}
     </Card>
   );
 }
