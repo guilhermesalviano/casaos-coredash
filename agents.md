@@ -6,7 +6,7 @@ Overview of all automated agents, internal APIs, and AI features in the project.
 
 ## Internal API Routes
 
-All routes live under `web/app/api/` and are consumed by the dashboard frontend.
+All routes live under `coredash/app/api/` and are consumed by the dashboard frontend.
 
 | Route | Method | Description | Cache TTL |
 |---|---|---|---|
@@ -59,7 +59,7 @@ Model is selected via the `AI_MODEL` env var (default: `gemma4:e2b`).
 
 #### Generating the Gmail refresh token
 ```bash
-cd web
+cd coredash
 npx tsx scripts/get-gmail-token.ts
 ```
 Opens a local OAuth flow on `http://localhost:3001/oauth/callback` and prints the token to the terminal.

@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/web/public/logo.png" height="48" />
+  <img src="https://raw.githubusercontent.com/guilhermesalviano/casaos-coredash/main/coredash/public/logo.png" height="48" />
   &nbsp;&nbsp;
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=36&pause=2000&color=6366F1&vCenter=true&width=260&height=48&lines=CoreDash" alt="CoreDash" />
 </p>
@@ -32,11 +32,11 @@ services:
 - Node.js (LTS version)
 - Docker & Docker Compose
 
-#### Run the Web App
+#### Run the coredash App
 To start the frontend development server:
 
 ```Bash
-cd web
+cd coredash
 npm run dev
 ```
 #### Mock Services
