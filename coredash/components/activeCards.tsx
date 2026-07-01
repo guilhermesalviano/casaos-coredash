@@ -9,9 +9,9 @@ const isWeekend = [0, 6].includes(new Date().getDay());
 
 const ALL_CARDS = [
   WeatherCardClient,
+  NarrativeSummaryCard,
   CalendarCardClient,
   !isWeekend && StocksCardClient,
-  NarrativeSummaryCard,
   TodoCardClient,
 ].filter(Boolean) as React.ComponentType[];
 

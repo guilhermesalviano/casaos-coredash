@@ -64,7 +64,7 @@ export default function CalendarCard({ data }: { data: CalendarCardData }) {
         ))}
       </div>
 
-      {data.importantEvents?.map((ev) => {
+      {data.importantEvents?.filter((ev) => ev.type == "birthday").map((ev) => {
         const m = EVENT_MAPPING[ev.type] ?? EVENT_MAPPING.default;
         return (
           <div key={ev.id} className={`flex items-center gap-2 text-[0.7rem] my-2! px-2! py-1! rounded-md font-medium animate-appear ${m.bg} ${m.color}`}>
