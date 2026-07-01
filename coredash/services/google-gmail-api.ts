@@ -72,7 +72,7 @@ export async function fetchGmailMessage(id: string): Promise<GmailMessage> {
   };
 }
 
-export async function fetchGoogleGmailAPI(): Promise<GmailMessage[]> {
+export async function fetchGoogleGmailAPI(options: { pageToken?: string } = {}): Promise<{ emails: GmailMessage[]; nextPageToken?: string }> {
   const auth = new google.auth.OAuth2(
     GOOGLE.gmailClientId,
     GOOGLE.gmailClientSecret,
@@ -84,11 +84,13 @@ export async function fetchGoogleGmailAPI(): Promise<GmailMessage[]> {
 
   const listRes = await gmail.users.messages.list({
     userId: 'me',
-    maxResults: 15,
+    maxResults: 10,
     labelIds: ['INBOX'],
+    pageToken: options.pageToken,
   });
 
   const messages = listRes.data.messages ?? [];
+  const nextPageToken = listRes.data.nextPageToken ?? undefined;
 
   const emails: GmailMessage[] = await Promise.all(
     messages.map(async (msg) => {
@@ -114,5 +116,5 @@ export async function fetchGoogleGmailAPI(): Promise<GmailMessage[]> {
     }),
   );
 
-  return emails;
+  return { emails, nextPageToken };
 }

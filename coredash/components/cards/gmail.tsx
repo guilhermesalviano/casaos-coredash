@@ -187,25 +187,43 @@ function EmailModal({
 export default function GmailCard() {
   const [emails, setEmails] = useState<GmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState<string | undefined>();
   const [openEmail, setOpenEmail] = useState<GmailMessage | null>(null);
   const [loadingBody, setLoadingBody] = useState(false);
 
   useEffect(() => {
     fetch("/api/emails/recent")
       .then((r) => r.json())
-      .then((json) => setEmails((json.data?.emails ?? []).slice(0, 5)))
+      .then((json) => {
+        setEmails(json.data?.emails ?? []);
+        setNextPageToken(json.data?.nextPageToken);
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
+  const loadMore = async () => {
+    if (!nextPageToken || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/emails/recent?pageToken=${nextPageToken}`);
+      const json = await res.json();
+      setEmails((prev) => [...prev, ...(json.data?.emails ?? [])]);
+      setNextPageToken(json.data?.nextPageToken);
+    } catch {
+      // silently fail — user can retry
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   const handleOpen = useCallback(async (id: string) => {
-    // Show immediately with snippet while body loads
     const found = emails.find((e) => e.id === id) ?? null;
     setOpenEmail(found);
     if (!found) return;
 
-    // Body already loaded
     if (found.body) return;
 
     setLoadingBody(true);
@@ -214,7 +232,6 @@ export default function GmailCard() {
       const json = await res.json();
       if (json.data) {
         setOpenEmail(json.data);
-        // Update list cache too
         setEmails((prev) => prev.map((e) => e.id === id ? { ...e, body: json.data.body } : e));
       }
     } finally {
@@ -242,7 +259,7 @@ export default function GmailCard() {
             )}
           </div>
           <span style={{ fontSize: 10, color: "var(--muted)", fontFamily: "var(--font-mono)" }}>
-            last 5
+            {emails.length} shown
           </span>
         </div>
 
@@ -261,6 +278,31 @@ export default function GmailCard() {
         {!loading && !error && emails.map((email) => (
           <EmailRow key={email.id} email={email} onOpen={handleOpen} />
         ))}
+
+        {!loading && !error && nextPageToken && (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            style={{
+              width: "100%",
+              marginTop: 10,
+              padding: "8px 0",
+              background: "none",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              cursor: loadingMore ? "default" : "pointer",
+              fontSize: 12,
+              color: "var(--muted)",
+              fontFamily: "var(--font-mono)",
+              transition: "border-color 0.15s, color 0.15s",
+              opacity: loadingMore ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => { if (!loadingMore) { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--foreground)"; }}}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
+          >
+            {loadingMore ? "Loading…" : "Load older emails"}
+          </button>
+        )}
       </Card>
 
       {openEmail && (

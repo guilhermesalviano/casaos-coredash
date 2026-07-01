@@ -7,19 +7,28 @@ import logger from "@/lib/logger";
 
 const gmailCache = createMemoryCache<GmailInternalAPIResponse>(ONE_MINUTE_IN_MS * 5);
 
-export async function GET() {
-  const cached = gmailCache.get("default");
-  if (cached) {
-    logger.info("Gmail data retrieved from cache successfully");
-    return NextResponse.json({ message: "Gmail data from cache successfully", data: cached });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const pageToken = searchParams.get("pageToken") ?? undefined;
+
+  // Don't cache paginated requests
+  if (!pageToken) {
+    const cached = gmailCache.get("default");
+    if (cached) {
+      logger.info("Gmail data retrieved from cache successfully");
+      return NextResponse.json({ message: "Gmail data from cache successfully", data: cached });
+    }
   }
 
   try {
-    const emails = await fetchGoogleGmailAPI();
+    const result = await fetchGoogleGmailAPI({ pageToken });
 
-    const responseBody: GmailInternalAPIResponse = { emails };
+    const responseBody: GmailInternalAPIResponse = {
+      emails: result.emails,
+      nextPageToken: result.nextPageToken,
+    };
 
-    gmailCache.set("default", responseBody);
+    if (!pageToken) gmailCache.set("default", responseBody);
 
     return NextResponse.json({ message: "Gmail data retrieved successfully", data: responseBody });
   } catch (error: unknown) {

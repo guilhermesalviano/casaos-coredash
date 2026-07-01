@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Card from "@/components/card";
-import SectionTitle from "@/components/sectionTitle";
 import {
   SpotifyDevice,
   SpotifyLibrary,
@@ -149,6 +149,7 @@ function DevicePicker({ devices, onTransfer }: {
   onTransfer: (deviceId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
   const active = devices.find((d) => d.is_active);
 
@@ -160,10 +161,18 @@ function DevicePicker({ devices, onTransfer }: {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
+  const handleOpen = () => {
+    if (!open && ref.current) {
+      const r = ref.current.getBoundingClientRect();
+      setPos({ top: r.top - 8, left: r.left });
+    }
+    setOpen((o) => !o);
+  };
+
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={handleOpen}
         title="Switch device"
         style={ctrlBtn(false)}
         onMouseEnter={(e) => hoverIn(e)} onMouseLeave={(e) => hoverOut(e)}
@@ -172,8 +181,21 @@ function DevicePicker({ devices, onTransfer }: {
         <span style={{ opacity: 0.4, fontSize: 9 }}>▾</span>
       </button>
 
-      {open && devices.length > 0 && (
-        <div style={{ position: "absolute", bottom: "calc(100% + 6px)", left: 0, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.15)", minWidth: 200, overflow: "hidden", zIndex: 50, animation: "appear 0.15s ease-out" }}>
+      {open && devices.length > 0 && createPortal(
+        <div style={{
+          position: "fixed",
+          top: pos.top,
+          left: pos.left,
+          transform: "translateY(-100%)",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 10,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+          minWidth: 200,
+          overflow: "hidden",
+          zIndex: 9999,
+          animation: "appear 0.15s ease-out",
+        }}>
           <div style={{ padding: "6px 10px", fontSize: 10, color: "var(--muted)", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid var(--border)" }}>Devices</div>
           {devices.map((d) => (
             <button key={d.id} onClick={() => { onTransfer(d.id); setOpen(false); }}
@@ -189,7 +211,8 @@ function DevicePicker({ devices, onTransfer }: {
               {d.is_active && <span style={{ color: "#1DB954", fontSize: 10 }}>●</span>}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

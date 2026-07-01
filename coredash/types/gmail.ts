@@ -11,4 +11,5 @@ export interface GmailMessage {
 
 export interface GmailInternalAPIResponse {
   emails: GmailMessage[];
+  nextPageToken?: string;
 }
