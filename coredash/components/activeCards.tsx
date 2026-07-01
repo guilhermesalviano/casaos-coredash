@@ -5,6 +5,7 @@ import StatusReporter from "./statusReporter";
 import TodoCardClient from "./cards/clients/todoCardClient";
 import NarrativeSummaryCard from "./cards/narrativeSummaryCard";
 import SpotifyCard from "./cards/spotify";
+import GmailCard from "./cards/gmail";
 
 const isWeekend = [0, 6].includes(new Date().getDay());
 
@@ -12,6 +13,7 @@ const ALL_CARDS = [
   WeatherCardClient,
   NarrativeSummaryCard,
   CalendarCardClient,
+  GmailCard,
   SpotifyCard,
   !isWeekend && StocksCardClient,
   TodoCardClient,
