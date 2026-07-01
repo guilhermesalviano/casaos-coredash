@@ -55,6 +55,20 @@
   --animate-appear: appear 0.5s ease-out;
 }
 
+@keyframes particle-fly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  60% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.15) rotate(var(--rot));
+  }
+}
+
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
