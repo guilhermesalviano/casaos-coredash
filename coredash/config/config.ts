@@ -59,6 +59,12 @@ export const APIS = {
   geminiApiKey: optional("GEMINI_API_KEY"),
 }
 
+export const SPOTIFY = {
+  clientId: optional("SPOTIFY_CLIENT_ID"),
+  clientSecret: optional("SPOTIFY_CLIENT_SECRET"),
+  refreshToken: optional("SPOTIFY_REFRESH_TOKEN"),
+}
+
 export const AI = {
   model: optional("AI_MODEL", "gemma4:e2b"),
   personalContext: optional("PERSONAL_CONTEXT"),

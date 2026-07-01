@@ -62,7 +62,7 @@ Model is selected via the `AI_MODEL` env var (default: `gemma4:e2b`).
 cd coredash
 npx tsx scripts/get-gmail-token.ts
 ```
-Opens a local OAuth flow on `http://localhost:3001/oauth/callback` and prints the token to the terminal.
+Opens a local OAuth flow on `http://127.0.0.1:3000/oauth/callback` and prints the token to the terminal.
 
 ---
 

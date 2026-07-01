@@ -4,7 +4,8 @@
  *
  * Prerequisites:
  *   - GOOGLE_GMAIL_CLIENT_ID and GOOGLE_GMAIL_CLIENT_SECRET set in .env
- *   - http://localhost:3001/oauth/callback added as Authorized Redirect URI in Google Cloud Console
+ *   - BASE_URL set in .env (e.g. http://127.0.0.1:3000)
+ *   - {host-from-BASE_URL}:3001/oauth/callback added as Authorized Redirect URI in Google Cloud Console
  */
 
 import http from "http";
@@ -16,7 +17,11 @@ dotenv.config({ path: ".env" });
 
 const CLIENT_ID = process.env.GOOGLE_GMAIL_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_GMAIL_CLIENT_SECRET!;
-const REDIRECT_URI = "http://localhost:3001/oauth/callback";
+
+// Derive host from BASE_URL, listener runs on port 3001 (separate from Next.js)
+const LISTEN_PORT = 3000;
+const baseUrl = new URL(process.env.BASE_URL ?? "http://localhost:3000");
+const REDIRECT_URI = `${baseUrl.protocol}//${baseUrl.hostname}:${LISTEN_PORT}/oauth/callback`;
 
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
@@ -26,12 +31,14 @@ const authUrl = oauth2Client.generateAuthUrl({
   scope: ["https://www.googleapis.com/auth/gmail.readonly"],
 });
 
-console.log("\n✅ Open this URL in your browser:\n");
+console.log(`\n📌 Redirect URI: ${REDIRECT_URI}`);
+console.log("   ↳ Register this in Google Cloud Console → OAuth 2.0 → Authorized redirect URIs\n");
+console.log("✅ Open this URL in your browser:\n");
 console.log(authUrl);
-console.log("\nWaiting for callback on http://localhost:3001/oauth/callback ...\n");
+console.log(`\nWaiting for callback on ${REDIRECT_URI} ...\n`);
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url!, `http://localhost:3001`);
+  const url = new URL(req.url!, `http://localhost:${LISTEN_PORT}`);
   const code = url.searchParams.get("code");
 
   if (!code) {
@@ -41,7 +48,7 @@ const server = http.createServer(async (req, res) => {
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
-    res.end("<h2>Success! Check your terminal for the refresh token.</h2>");
+    res.end("<h2>✅ Success! Check your terminal for the refresh token.</h2>");
 
     console.log("\n🎉 Refresh token generated successfully!\n");
     console.log("Add this to your .env:\n");
@@ -55,4 +62,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(3001);
+server.listen(LISTEN_PORT);

@@ -45,3 +45,6 @@ database.db
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Spotify token (generated via OAuth)
+.spotify-token
