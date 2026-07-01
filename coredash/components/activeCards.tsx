@@ -1,3 +1,5 @@
+"use client";
+
 import WeatherCardClient from "./cards/clients/weatherCardClient";
 import CalendarCardClient from "./cards/clients/calendarCardClient";
 import StocksCardClient from "@/components/cards/clients/stocksCardClient";
@@ -6,24 +8,35 @@ import TodoCardClient from "./cards/clients/todoCardClient";
 import NarrativeSummaryCard from "./cards/narrativeSummaryCard";
 import SpotifyCard from "./cards/spotify";
 import GmailCard from "./cards/gmail";
+import { CardId, useActiveCards } from "@/hooks/useActiveCards";
+import NewsCard from "./cards/news";
 
 const isWeekend = [0, 6].includes(new Date().getDay());
 
-const ALL_CARDS = [
-  WeatherCardClient,
-  NarrativeSummaryCard,
-  CalendarCardClient,
-  GmailCard,
-  SpotifyCard,
-  !isWeekend && StocksCardClient,
-  TodoCardClient,
-].filter(Boolean) as React.ComponentType[];
-
-const autoSuccessStatuses = [
-  ...(isWeekend ? ["stocks"] : []),
-];
+const CARD_MAP: Record<CardId, React.ComponentType | null> = {
+  weather:   WeatherCardClient,
+  narrative: NarrativeSummaryCard,
+  calendar:  CalendarCardClient,
+  gmail:     GmailCard,
+  spotify:   SpotifyCard,
+  stocks:    isWeekend ? null : StocksCardClient,
+  todo:      TodoCardClient,
+  news:     NewsCard,
+};
 
 export default function ActiveCards() {
+  const { active, mounted } = useActiveCards();
+
+  const autoSuccessStatuses = [
+    ...(isWeekend ? ["stocks"] : []),
+  ];
+
+  if (!mounted) return null;
+
+  const cards = active
+    .map((id) => ({ id, Component: CARD_MAP[id] }))
+    .filter((c): c is { id: CardId; Component: React.ComponentType } => !!c.Component);
+
   return (
     <>
       {autoSuccessStatuses.length > 0 && (
@@ -31,9 +44,9 @@ export default function ActiveCards() {
       )}
 
       <div className="gap-4 m-4!" style={{ columns: "25rem" }}>
-        {ALL_CARDS.map((Card, i) => (
-          <div key={i} style={{ breakInside: "avoid", marginBottom: "1rem" }}>
-            <Card />
+        {cards.map(({ id, Component }) => (
+          <div key={id} style={{ breakInside: "avoid", marginBottom: "1rem" }}>
+            <Component />
           </div>
         ))}
       </div>

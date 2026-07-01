@@ -4,15 +4,20 @@ import storage from "@/lib/storage";
 import { useState, useEffect } from "react";
 import Button from "./button";
 
-type ThemeMode = "light" | "dark" | "system";
+type ThemeMode = "light" | "dark";
 
 const STORAGE_KEY = "theme";
+
+function getThemeByTime(): ThemeMode {
+  const hour = new Date().getHours();
+  return hour >= 6 && hour < 20 ? "light" : "dark";
+}
 
 function getInitialTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";
   const stored = storage.get(STORAGE_KEY) as ThemeMode | null;
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return getThemeByTime();
 }
 
 function applyTheme(mode: ThemeMode) {

@@ -5,6 +5,7 @@ import ThemeToggle from "@/components/themeToggle";
 import ActiveCards from "@/components/activeCards";
 import TalkToAI from "@/components/talkToAI";
 import Logo from "@/components/logo";
+import Settings from "@/components/settings";
 
 export default function Page() {
 
@@ -22,11 +23,11 @@ export default function Page() {
 
         <div className="header-status flex items-center justify-end gap-4">
           <SystemsStatus />
+          <Settings />
           <TalkToAI />
         </div>
       </div>
       <ActiveCards />
-      <ThemeToggle />
     </>
   );
 }
