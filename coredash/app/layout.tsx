@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { StatusProvider } from "@/contexts/statusContext";
 import { SvgParticles } from "@/components/svgParticles";
+import RainAlert from "@/components/rainAlert";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <StatusProvider>
           {children}
           <SvgParticles />
+          <RainAlert />
         </StatusProvider>
       </body>
     </html>

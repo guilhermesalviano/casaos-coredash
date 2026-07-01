@@ -1,7 +1,6 @@
 import Loading from "@/components/loading";
 import Clock from "@/components/clock";
 import SystemsStatus from "@/components/systemsStatus";
-import ThemeToggle from "@/components/themeToggle";
 import ActiveCards from "@/components/activeCards";
 import TalkToAI from "@/components/talkToAI";
 import Logo from "@/components/logo";
