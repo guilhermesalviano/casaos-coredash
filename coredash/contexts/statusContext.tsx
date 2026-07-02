@@ -1,13 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 
 type ServiceStatus = "loading" | "success" | "error";
 
 const StatusContext = createContext({
   reportStatus: (name: string, status: ServiceStatus) => {},
+  startAction: (id: string) => {},
+  endAction: (id: string) => {},
   isAllLive: false,
-  anyLoading: true
+  anyLoading: true,
+  anyActionLoading: false,
 });
 
 export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
@@ -20,16 +23,26 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
     calendar: "loading"
   });
 
+  const [actions, setActions] = useState<Set<string>>(new Set());
+
   const reportStatus = (name: string, status: ServiceStatus) => {
     setSystems(prev => ({ ...prev, [name]: status }));
   };
 
-  const isAllLive = Object.values(systems).every(v => v === "success");
+  const startAction = useCallback((id: string) => {
+    setActions(prev => new Set([...prev, id]));
+  }, []);
 
+  const endAction = useCallback((id: string) => {
+    setActions(prev => { const n = new Set(prev); n.delete(id); return n; });
+  }, []);
+
+  const isAllLive = Object.values(systems).every(v => v === "success");
   const anyLoading = Object.values(systems).some(v => v === "loading");
+  const anyActionLoading = actions.size > 0;
 
   return (
-    <StatusContext.Provider value={{ reportStatus, isAllLive, anyLoading }}>
+    <StatusContext.Provider value={{ reportStatus, startAction, endAction, isAllLive, anyLoading, anyActionLoading }}>
       {children}
     </StatusContext.Provider>
   );

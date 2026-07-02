@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useStatus } from "@/contexts/statusContext";
 import Card from "@/components/card";
 
 type State = "idle" | "loading" | "streaming" | "done" | "error";
@@ -58,6 +59,7 @@ export default function NarrativeSummaryCard() {
   const [text, setText] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const { weather } = useDashboard();
+  const { startAction, endAction } = useStatus();
 
   const fetchNarrative = useCallback(async () => {
     if (!weather.data) return;
@@ -67,6 +69,7 @@ export default function NarrativeSummaryCard() {
 
     setState("loading");
     setText("");
+    startAction("narrative");
 
     try {
       const res = await fetch("/api/ai/narrative", {
@@ -99,10 +102,12 @@ export default function NarrativeSummaryCard() {
       }
 
       setState("done");
+      endAction("narrative");
     } catch (err: unknown) {
+      endAction("narrative");
       if (!(err instanceof DOMException && err.name === "AbortError")) setState("error");
     }
-  }, [weather.data]);
+  }, [weather.data, startAction, endAction]);
 
   const isActive = state === "loading" || state === "streaming" || state === "done";
 

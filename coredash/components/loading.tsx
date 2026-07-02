@@ -2,65 +2,151 @@
 
 import { useEffect, useState } from "react";
 import { useStatus } from "@/contexts/statusContext";
-import { LOADING_TEXTS } from "@/constants";
-import { randomInRange } from "@/utils/random";
 import Logo from "@/components/logo";
+
+// Layer timing: (transition-duration + delay) determines render order
+// L1: 900+0=900ms  L2: 1000+350=1350ms  L3: 1050+700=1750ms  L4: 1100+1100=2200ms
+const UNMOUNT_DELAY = 2450;
 
 export default function Loading() {
   const { anyLoading } = useStatus();
-
-  const [textIndex, setTextIndex] = useState<number | null>(null);
-  const [fade, setFade] = useState(true);
+  const [visible, setVisible] = useState(true);
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    setTextIndex(randomInRange(0, 5));
-
-    if (!anyLoading) return;
-
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setTextIndex(randomInRange(0, 5));
-        setFade(true);
-      }, 300);
-    }, 2500);
-
-    return () => clearInterval(interval);
+    if (anyLoading) return;
+    setExiting(true);
+    const t = setTimeout(() => setVisible(false), UNMOUNT_DELAY);
+    return () => clearTimeout(t);
   }, [anyLoading]);
 
-  if (!anyLoading) return null;
+  if (!visible) return null;
+
+  const wipe = (duration: number, delay: number, easing: string) =>
+    exiting ? `transform ${duration}ms ${easing} ${delay}ms` : "none";
+
+  const panel = (extras?: React.CSSProperties): React.CSSProperties => ({
+    position: "absolute",
+    inset: 0,
+    transform: exiting ? "translateY(-105%)" : "translateY(0)",
+    willChange: exiting ? "transform" : "auto",
+    ...extras,
+  });
 
   return (
-    <div
-      className="fixed flex flex-col gap-6 items-center justify-center w-full h-full z-100"
-      style={{
-        opacity: fade ? 1 : 0,
-        transition: "opacity 0.3s ease-in-out",
-        backgroundColor: "var(--background)",
-      }}
-    >
-      <div className="relative flex items-center justify-center">
-        <div className="w-14 h-14 rounded-full border-4 border-gray-200" />
-        <div className="absolute w-14 h-14 rounded-full border-4 border-transparent border-t-cyan-500 animate-spin" />
-      </div>
-      {(textIndex !== null &&
-        <p
-          className="text-sm text-slate-400 animate-appear"
-          style={{ opacity: fade ? 1 : 0 }}
+    <>
+      <style>{`
+        @keyframes loading-enter {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes loading-pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.45; }
+        }
+        @keyframes loading-scan {
+          0%   { transform: translateY(-100%); opacity: 0; }
+          10%  { opacity: 0.06; }
+          90%  { opacity: 0.06; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+      `}</style>
+
+      <div
+        className="fixed inset-0 z-100 overflow-hidden"
+        style={{ pointerEvents: exiting ? "none" : "all" }}
+      >
+        {/* Layer 1 — deepest, fastest exit */}
+        <div
+          style={panel({
+            background: "var(--background)",
+            boxShadow: "inset 0 -2px 0 0 var(--accent)",
+            transition: wipe(900, 0, "cubic-bezier(0.9,0,0.1,1)"),
+          })}
+        />
+
+        {/* Layer 2 — medium exit */}
+        <div
+          style={panel({
+            background: "var(--surface)",
+            boxShadow: "inset 0 -2px 0 0 var(--accent)",
+            transition: wipe(1000, 350, "cubic-bezier(0.84,0,0.16,1)"),
+          })}
+        />
+
+        {/* Layer 3 — slower exit */}
+        <div
+          style={panel({
+            background: "var(--background)",
+            boxShadow: "inset 0 -2px 0 0 var(--accent)",
+            transition: wipe(1050, 700, "cubic-bezier(0.78,0,0.22,1)"),
+          })}
+        />
+
+        {/* Layer 4 — Logo, slowest exit */}
+        <div
+          style={panel({
+            background: "var(--surface)",
+            transition: wipe(1100, 1100, "cubic-bezier(0.72,0,0.28,1)"),
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          })}
         >
-          {LOADING_TEXTS[textIndex]}
-        </p>
-      )}
+          {/* Horizontal scan line — ambient FX while loading */}
+          {!exiting && (
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                overflow: "hidden",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  height: 80,
+                  background: "linear-gradient(to bottom, transparent, var(--accent), transparent)",
+                  animation: "loading-scan 3.5s ease-in-out infinite",
+                }}
+              />
+            </div>
+          )}
 
-      <div className="absolute bottom-10 flex flex-col items-center">
-        <div className="flex items-center gap-2 text-2xl font-black tracking-tighter text-slate-800 leading-none">
-          <Logo />
+          <div
+            style={{
+              animation: exiting
+                ? "none"
+                : "loading-enter 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.25s both, loading-pulse 2.4s ease-in-out 1.2s infinite",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <Logo />
+          </div>
+
+          <span
+            style={{
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: "0.2em",
+              fontWeight: 600,
+              color: "var(--muted)",
+              animation: exiting ? "none" : "loading-enter 0.5s ease-out 0.5s both",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            v1.0.0
+          </span>
         </div>
-
-        <span className="mt-1.5 text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-300">
-          v1.0.0
-        </span>
       </div>
-    </div>
+    </>
   );
 }

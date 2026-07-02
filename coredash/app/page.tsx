@@ -1,4 +1,5 @@
 import Loading from "@/components/loading";
+import ActionLoader from "@/components/actionLoader";
 import Clock from "@/components/clock";
 import SystemsStatus from "@/components/systemsStatus";
 import ActiveCards from "@/components/activeCards";
@@ -11,6 +12,7 @@ export default function Page() {
   return (
     <>
       <Loading />
+      <ActionLoader />
       <div className="header grid grid-cols-3 items-center w-full py-4! sm:px-14! sticky z-60">
         <div className="header-brand flex gap-2 items-center">
           <Logo />
