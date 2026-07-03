@@ -41,6 +41,23 @@ function extractHtmlBody(payload: {
   return '';
 }
 
+export async function markGmailMessageAsRead(id: string): Promise<void> {
+  const auth = new google.auth.OAuth2(
+    GOOGLE.gmailClientId,
+    GOOGLE.gmailClientSecret,
+  );
+
+  auth.setCredentials({ refresh_token: GOOGLE.gmailRefreshToken });
+
+  const gmail = google.gmail({ version: 'v1', auth });
+
+  await gmail.users.messages.modify({
+    userId: 'me',
+    id,
+    requestBody: { removeLabelIds: ['UNREAD'] },
+  });
+}
+
 export async function fetchGmailMessage(id: string): Promise<GmailMessage> {
   const auth = new google.auth.OAuth2(
     GOOGLE.gmailClientId,
@@ -84,7 +101,7 @@ export async function fetchGoogleGmailAPI(options: { pageToken?: string } = {}):
 
   const listRes = await gmail.users.messages.list({
     userId: 'me',
-    maxResults: 10,
+    maxResults: 5,
     labelIds: ['INBOX'],
     pageToken: options.pageToken,
   });

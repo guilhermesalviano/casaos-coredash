@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { fetchGmailMessage } from "@/services/google-gmail-api";
-import { createMemoryCache } from "@/utils/in-memory-cache";
-import { ONE_MINUTE_IN_MS } from "@/constants";
+import { gmailMessageCache } from "@/lib/gmail-cache";
 import { GmailMessage } from "@/types/gmail";
 import logger from "@/lib/logger";
-
-const messageCache = createMemoryCache<GmailMessage>(ONE_MINUTE_IN_MS * 5);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,7 +12,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing required query param: id" }, { status: 400 });
   }
 
-  const cached = messageCache.get(id);
+  const cached = gmailMessageCache.get(id);
   if (cached) {
     logger.info(`Gmail message ${id} retrieved from cache`);
     return NextResponse.json({ message: "Email retrieved from cache", data: cached });
@@ -24,7 +21,7 @@ export async function GET(request: Request) {
   try {
     const email = await fetchGmailMessage(id);
 
-    messageCache.set(id, email);
+    gmailMessageCache.set(id, email);
 
     return NextResponse.json({ message: "Email retrieved successfully", data: email });
   } catch (error: unknown) {

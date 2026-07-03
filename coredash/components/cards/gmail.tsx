@@ -224,6 +224,21 @@ export default function GmailCard() {
     setOpenEmail(found);
     if (!found) return;
 
+    // Optimistically mark as read in local state
+    if (found.isUnread) {
+      setEmails((prev) => prev.map((e) => e.id === id ? { ...e, isUnread: false } : e));
+      setOpenEmail((prev) => prev ? { ...prev, isUnread: false } : prev);
+      // Fire-and-forget — no need to await, UI is already updated
+      fetch("/api/emails/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }).catch(() => {
+        // Revert on failure
+        setEmails((prev) => prev.map((e) => e.id === id ? { ...e, isUnread: true } : e));
+      });
+    }
+
     if (found.body) return;
 
     setLoadingBody(true);
@@ -231,7 +246,7 @@ export default function GmailCard() {
       const res = await fetch(`/api/emails/message?id=${id}`);
       const json = await res.json();
       if (json.data) {
-        setOpenEmail(json.data);
+        setOpenEmail((prev) => prev ? { ...prev, body: json.data.body } : prev);
         setEmails((prev) => prev.map((e) => e.id === id ? { ...e, body: json.data.body } : e));
       }
     } finally {

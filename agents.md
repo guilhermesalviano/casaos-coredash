@@ -53,7 +53,7 @@ Model is selected via the `AI_MODEL` env var (default: `gemma4:e2b`).
 
 ### Gmail (`services/google-gmail-api.ts`)
 - Auth: **OAuth2 with refresh token** (personal inbox access)
-- Scopes: `gmail.readonly`
+- Scopes: `gmail.modify` (read + mark as read/unread)
 - Env vars: `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`
 - Returns: `id`, `threadId`, `snippet`, `from`, `subject`, `date`, `isUnread`
 

@@ -4,7 +4,7 @@
  *
  * Prerequisites:
  *   - GOOGLE_GMAIL_CLIENT_ID and GOOGLE_GMAIL_CLIENT_SECRET set in .env
- *   - BASE_URL set in .env (e.g. http://127.0.0.1:3000)
+ *   - BASE_URL set in .env (e.g. http://127.0.0.1:3001)
  *   - {host-from-BASE_URL}:3001/oauth/callback added as Authorized Redirect URI in Google Cloud Console
  */
 
@@ -19,8 +19,8 @@ const CLIENT_ID = process.env.GOOGLE_GMAIL_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_GMAIL_CLIENT_SECRET!;
 
 // Derive host from BASE_URL, listener runs on port 3001 (separate from Next.js)
-const LISTEN_PORT = 3000;
-const baseUrl = new URL(process.env.BASE_URL ?? "http://localhost:3000");
+const LISTEN_PORT = 3001;
+const baseUrl = new URL("http://localhost:3001");
 const REDIRECT_URI = `${baseUrl.protocol}//${baseUrl.hostname}:${LISTEN_PORT}/oauth/callback`;
 
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
@@ -28,7 +28,7 @@ const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_U
 const authUrl = oauth2Client.generateAuthUrl({
   access_type: "offline",
   prompt: "consent",
-  scope: ["https://www.googleapis.com/auth/gmail.readonly"],
+  scope: ["https://www.googleapis.com/auth/gmail.modify"],
 });
 
 console.log(`\n📌 Redirect URI: ${REDIRECT_URI}`);
