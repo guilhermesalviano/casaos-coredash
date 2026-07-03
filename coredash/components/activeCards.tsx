@@ -18,9 +18,9 @@ const CARD_MAP: Record<CardId, React.ComponentType | null> = {
   narrative: NarrativeSummaryCard,
   calendar:  CalendarCardClient,
   gmail:     GmailCard,
+  todo:      TodoCardClient,
   spotify:   SpotifyCard,
   stocks:    isWeekend ? null : StocksCardClient,
-  todo:      TodoCardClient,
   news:     NewsCard,
 };
 
