@@ -5,12 +5,14 @@ import SystemsStatus from "@/components/systemsStatus";
 import ActiveCards from "@/components/activeCards";
 import Logo from "@/components/logo";
 import Settings from "@/components/settings";
+import StoreStatusBridge from "@/components/storeStatusBridge";
 
 export default function Page() {
 
   return (
     <>
       <Loading />
+      <StoreStatusBridge />
       <ActionLoader />
       <div className="header grid grid-cols-3 items-center w-full py-4! sm:px-14! sticky z-60">
         <div className="header-brand flex gap-2 items-center">

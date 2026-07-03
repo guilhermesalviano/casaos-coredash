@@ -15,12 +15,11 @@ const StatusContext = createContext({
 
 export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
   const [systems, setSystems] = useState<Record<string, ServiceStatus>>({
-    // news: "loading",
-    // weather: "loading",
-    // stocks: "loading",
-    // habit: "loading",
     todo: "loading",
-    calendar: "loading"
+    calendar: "loading",
+    weather: "loading",
+    news: "loading",
+    stocks: "loading",
   });
 
   const [actions, setActions] = useState<Set<string>>(new Set());
