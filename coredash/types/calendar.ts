@@ -57,5 +57,13 @@ export interface CalendarInternalAPIResponse {
     title: string;
     type?: string;
     color?: string;
+  }[],
+  futureEvents?: {
+    id: string;
+    start: string;
+    end: string;
+    title: string;
+    type?: string;
+    color?: string;
   }[]
 }

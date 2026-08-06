@@ -6,10 +6,19 @@ import { ONE_MINUTE_IN_MS } from "@/constants";
 import { CalendarInternalAPIResponse } from "@/types/calendar";
 import logger from "@/lib/logger";
 
+function getEventType(summary: string) {
+  if (/birthday|anivers[áa]rio/i.test(summary)) return "birthday";
+  if (/holiday|feriado/i.test(summary)) return "holiday";
+  return "default";
+}
+
 const calendarCache = createMemoryCache<CalendarInternalAPIResponse>(ONE_MINUTE_IN_MS * 60 * 3);
 
 export async function GET(req: NextRequest) {
-  const cached = calendarCache.get("default");
+  const includeFutureEvents = req.nextUrl.searchParams.get("includeFutureEvents") === "true";
+  const cacheKey = includeFutureEvents ? "includeFutureEvents=true" : "default";
+
+  const cached = calendarCache.get(cacheKey);
   if (cached) {
     logger.info("Calendar data retrieved from cache successfully");
     return NextResponse.json({ message: "Calendar data from cache successfully", data: cached });
@@ -19,7 +28,7 @@ export async function GET(req: NextRequest) {
     const todayStr = format(new Date(), "yyyy-MM-dd");
     const events = await fetchGoogleCalendarAPI();
 
-    const importantEvents = events
+    const futureEvents = events
       .filter((event) => {
         const eventDate = event.start.dateTime 
           ? format(parseISO(event.start.dateTime), "yyyy-MM-dd")
@@ -27,7 +36,7 @@ export async function GET(req: NextRequest) {
             ? format(parseISO(event.start.date), "yyyy-MM-dd")
             : null;
 
-        return eventDate !== todayStr;
+        return eventDate !== null && eventDate > todayStr;
       })
       .map((event) => {
         return {
@@ -36,9 +45,11 @@ export async function GET(req: NextRequest) {
             ? format(parseISO(event.start.date), "dd/MM/yyyy") : "Horário não definido",
           end: (event.end.dateTime ? format(event.end.dateTime, "HH:mm") : ""),
           title: event.summary,
-          type: (/birthday|anivers[áa]rio/i.test(event.summary)? "birthday": "default")
+          type: getEventType(event.description || event.summary)
         }
       });
+
+    const importantEvents = futureEvents.filter((event) => event.type === "birthday");
 
     const todayEvents = events
       .filter((event) => {
@@ -56,7 +67,7 @@ export async function GET(req: NextRequest) {
           end: (event.end.dateTime ? format(event.end.dateTime, "HH:mm") : ""),
           title: event.summary,
           color: "#6EE7B7",
-          type: /birthday|anivers[áa]rio/i.test(event.summary) ? "birthday" : "default"
+          type: getEventType(event.summary)
         }
       });
 
@@ -65,7 +76,11 @@ export async function GET(req: NextRequest) {
       importantEvents 
     };
 
-    calendarCache.set("default", responseBody)
+    if (includeFutureEvents) {
+      responseBody.futureEvents = futureEvents;
+    }
+
+    calendarCache.set(cacheKey, responseBody)
 
     return NextResponse.json({ message: "Calendar data retrieved successfully", data: responseBody } );
   } catch (error: unknown) {
