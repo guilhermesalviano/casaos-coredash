@@ -70,7 +70,7 @@ export default function Loading() {
       >
         {gif && <Image src={gif} alt="loading" width={120} height={120} unoptimized style={{ objectFit: "contain" }} />}
         {phrase && <p style={{ color: "var(--muted)", fontSize: 13 }}>{phrase}</p>}
-        <p style={{ color: "var(--muted)", fontSize: 11, letterSpacing: "0.1em" }}>
+        <p className="absolute bottom-4 right-4" style={{ color: "var(--muted)", fontSize: 11, letterSpacing: "0.1em" }}>
           <span className="loading-dots">loading</span>
         </p>
       </div>
